@@ -1,140 +1,46 @@
-import {
-	ArticleCard,
-	GithubTemplateCard,
-	Grid,
-	ExpandableGrid,
-	createMetadata,
-	OpenSourceCard,
-	Stack,
-	ConnectCard,
-	Callout
-} from "@doc";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import BundleSizeImage from "./assets/bundlesize-transparent.png";
+import PerformanceImage from "./assets/performance-transparent.png";
 
-export const metadata = createMetadata({
-	title: "thirdweb Connect",
-	description: "Everything you need for your web3 frontend.",
-	image: {
-		title: "thirdweb Connect",
-		icon: "thirdweb",
-	},
-});
+import { Callout, DocImage, OpenSourceCard } from "@doc";
 
-# What is Connect?
+# Why thirdweb?
 
-Connect is the complete toolkit for connecting every user to your application. It features customizable onboarding flows, self-custodial in-app wallets, account abstraction, onramps, and a performant API to interact with the blockchain.
+The thirdweb SDK comes with all the features you need to build production-grade client-side applications. Here's a comparison with other popular libraries.
 
-<div
-	className={cn(
-		"my-4 grid gap-4 md:grid-cols-2 lg:grid-cols-2",
-		props.className,
-	)}
->
-	<ConnectCard
-		title="Playground"
-		href="https://playground.thirdweb.com"
-		iconUrl="/icons/connect/intros/demo.svg"
-	/>
-	<ConnectCard
-		title="Quickstart"
-		href="https://portal.thirdweb.com/react/v5/getting-started"
-		iconUrl="/icons/connect/intros/quickstart.svg"
-	/>
-	{/* <ConnectCard
-		title="Why Connect?"
-		href=""
-		iconUrl="/icons/connect/intros/why-connect.svg"
-	/>
-	<ConnectCard
-		title="Video Tutorial"
-		href=""
-		iconUrl="/icons/connect/intros/video-tutorial.svg"
-	/> */}
-</div>
-### With Connect, you can:
+### Feature Comparison
 
-- **Connect to 350+ different wallet providers** with support for every EVM network
-- **Log in and authenticate your users** with customizable and secure [email, phone, passkeys and social login](https://portal.thirdweb.com/connect/in-app-wallet/overview) flows.
-- **Sponsor transactions** to seamlessly onboard non-native or new crypto users with [Account Abstraction](https://portal.thirdweb.com/connect/account-abstraction/overview).
-- **Perform wallet actions** like connecting and disconnecting wallets, viewing balance, displaying ENS names, and execute transactions with our [perfomant, reliable and type safe API](https://portal.thirdweb.com/connect/blockchain-api)
-- **Easily integrate with thirdweb's contracts** to enable users to interact with your application.
-- **Facilitate payments** by letting user top up their wallets or do onchain purchases with a credit card with [Pay](https://portal.thirdweb.com/connect/pay/overview).
+|                                           | thirdweb | Wagmi + Viem              | Ethers@6 |
+| ----------------------------------------- | -------- | ------------------------- | -------- |
+| Type safe contract API                    | ✅        | ✅                         | ✅        |
+| Type safe wallet API                      | ✅        | ✅                         | ✅        |
+| EVM utils                                 | ✅        | ✅                         | ✅        |
+| RPC for any EVM                           | ✅        | ⚠️ public RPC only        | ❌        |
+| Automatic ABI Resolution                  | ✅        | ❌                         | ❌        |
+| IPFS Upload/Download                      | ✅        | ❌                         | ❌        |
+| In-app wallet (email/ social login)       | ✅        | ⚠️ via 3rd party          | ❌        |
+| Account abstraction (ERC4337) support     | ✅        | ⚠️ via 3rd party          | ❌        |
+| Web3 wallet connectors                    | ✅        | ✅                         | ❌        |
+| Local wallet creation                     | ✅        | ✅                         | ✅        |
+| Auth (SIWE)                               | ✅        | ✅                         | ❌        |
+| Extensions functions for common standards | ✅        | ✅                         | ❌        |
+| React Hooks                               | ✅        | ✅                         | ❌        |
+| React UI components                       | ✅        | ❌                         | ❌        |
+| React Native Hooks                        | ✅        | ✅                         | ❌        |
+| React Native UI Components                | ✅        | ❌                         | ❌        |
+| CLI (codegen)                             | ✅        | ✅                         | ❌        |
 
-<Callout variant="info" title="Have you generated a client ID?">
-	<div className="flex flex-col gap-4 items-start">
-	<p>
-		You'll need a client ID to access Connect's free blockchain APIs, storage, and more.
-	</p>
-	<Link
-			href="https://thirdweb.com/create-api-key"
-			target="_blank"
-		>
-		<Button> 
-			Generate
-		</Button>
-		</Link>
-	</div>
-</Callout>
+### Bundle Size
 
-### Supported Chains
+The thirdweb SDK is designed to be as small as possible leveraging tree shaking. Here's a comparison of the bundle size to perform a simple RPC call on mainnet with other popular libraries:
 
-Connect is supported on every EVM compatible chain. To view the full list, visit [thirdweb chainlist](https://thirdweb.com/chainlist).
+<DocImage src={BundleSizeImage} alt="bundle size table" className="mx-auto" />
 
-### Templates
+### Performance Benchmarks
 
-<ExpandableGrid>
+Performance is the biggest focus of the thirdweb SDK. Here are some runtime benchmarks for encoding, RPC calls, reading contract state and sending a transaction:
 
-<GithubTemplateCard
-	title="Next Starter"
-	href="https://github.com/thirdweb-example/next-starter"
-	tag="Starter"
-/>
-<GithubTemplateCard
-	title="Vite Starter"
-	href="https://github.com/thirdweb-example/vite-starter"
-	tag="Starter"
-/>
-<GithubTemplateCard
-	title="Node Starter"
-	href="https://github.com/thirdweb-example/node-starter"
-	tag="Starter"
-/>
-<GithubTemplateCard
-	title="Expo Starter"
-	href="https://github.com/thirdweb-example/expo-starter"
-	tag="Starter"
-/>
+<DocImage src={PerformanceImage} alt="performance table" className="mx-auto" />
 
-<GithubTemplateCard
-	title="NFT Marketplace"
-	href="https://github.com/thirdweb-example/marketplace-v3"
-	tag="Builds"
-/>
+To run your own benchmarks or see results in detail, [check out our instructions to run them.](https://github.com/thirdweb-dev/js/tree/main/packages/thirdweb/benchmarks)
 
-<GithubTemplateCard
-	title="Auth - NextJS"
-	href="https://github.com/thirdweb-example/thirdweb-auth-next"
-	tag="Example"
-/>
-
-<GithubTemplateCard
-	title="Auth - Express"
-	href="https://github.com/thirdweb-example/thirdweb-auth-express"
-	tag="Example"
-/>
-
-<GithubTemplateCard
-	title="Account Abstraction"
-	href="https://github.com/thirdweb-example/account-abstraction"
-	tag="Example"
-/>
-
-<GithubTemplateCard
-	title="Sign in with Farcaster"
-	href="https://github.com/thirdweb-example/thirdweb-siwf"
-	tag="Example"
-/>
-
-</ExpandableGrid>
+_Last updated: March 14, 2024_
