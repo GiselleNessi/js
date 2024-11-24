@@ -1,103 +1,147 @@
-import { DocImage, Callout, createMetadata } from "@doc";
-import EnclaveWalletCreation from "./assets/enclave-wallet-creation.png";
-import AppScoped from "./assets/app-scoped.svg";
-import EcosystemScoped from "./assets/ecosystem-scoped.svg";
+import { ArticleIconCard, AuthList, Callout, DocImage } from "@doc";
+import {UserIcon} from 'lucide-react'
+import {
+    ReactIcon,
+    TypeScriptIcon,
+    UnityIcon,
+    DotNetIcon,
+    ExternalLinkIcon,
+    UnrealEngineIcon,
+    EcosystemWalletsIcon,
+    WalletsConnectIcon
+} from "@/icons"
+import EcosystemSocialConfig from '../assets/social-config.png'
+import { getSocialIcon } from "thirdweb/wallets/in-app";
 
-export const metadata = createMetadata({
-	image: {
-		title: "In App wallet and Ecosystem Security",
-		icon: "wallets",
-	},
-	title: "thirdweb Wallet Security",
-	description:
-		"Learn how thirdweb protects your user's private keys across applications using nitro Enclaves",
-});
+# Sign-In Methods
 
-# thirdweb Wallet Security
+thirdweb supports a bunch of various traditional authentication methods. 
 
-If you are looking for the previous security documentation around the shamir secret sharing model, please refer to the [In-App Wallet Security](/connect/wallet/security/legacy) page.
+From social logins via the [OAuth 2.0 Protocol](https://oauth.net/2/), to email and SMS, to passkeys.
 
-## Wallet Creation
+For all login methods, thirdweb generates a non-custodial [wallet](/connect/wallet/security) behind the scenes. Thirdweb wallets enable your users to interact with your application, as well as store tokens and assets they receive while interacting with your application.
 
-When a user signs into an application using their email or social logins for the first time, a wallet is generated within a secure enclave on the server after verifying the user's legitimacy. The enclave provides a trusted execution environment, ensuring the wallet creation process is isolated and protected from external interference.
+## Supported Methods
 
-- The wallet and its corresponding private key are generated entirely within the enclave, never leaving its secure confines.
-- User authentication data is verified within the enclave, ensuring that only legitimate, authenticated users can initiate wallet creation.
+<AuthList/>
 
-<DocImage src={EnclaveWalletCreation} className="max-w-96" />
+## Enable Sign-In options
 
-## Security Measures
+### In-App Wallets
 
-- The enclave's cryptographic properties ensure that even the server operators cannot access the contents or operations within the enclave.
-- The enclave provides a verifiable hash of the image of the code that is being run on the device, allowing anyone to verify the contents of the code.
-- The wallet's private key never exists in an unencrypted form outside of the enclave.
-- All sensitive operations, such as transaction signing, occur within the enclave, ensuring the wallet's security.
+To enable a given sign-in method for the thirdweb wallet, refer to the following guides:
 
-## Wallet Usage
-
-### General Usage
-
-- When users interact with their wallet via the the enclave, all communications are encrypted and only the legitimate user can access their wallet.
-- All traffic is encrypted with TLS and HSTS. Services are run in private VPCs on AWS and accessible only from a single entry point via our Cloudflare DNS.
-- Applications can [link multiple authentication methods](/connect/in-app-wallet/guides/link-multiple-profiles) to the same wallet. Any of these methods can be used to authenticate into the users wallet.
-
-### Ecosystem Usage
-
-Ecosystem wallets are controlled by the ecosystem owner. Ecosystem owners are able to specify usage policies for their partners and developers which restricts what they can do with the wallet. Unlike the shamir secret sharing model, the enclave wallet model ensures that the private key is never reconstructed on the client. This ensures no-one can extract the private key from the client, including other developers in the ecosystem. Moreover, it also means that partners and developers must submit the request to the enclave which would be able to verify the request and block requests that are out of scope or denied by the ecosystem owner.  
-
-## Scopes
-
-### In App Wallets
-
-In-App Wallets are scoped to applications per Client ID. If users use the same email to sign in to a different application using In-App Wallets, the application will manage an entirely different wallet.
-
-#### Benefits of single application scoped wallets
-
-- Each application has limited access only to wallets created through their application. It cannot manage wallets from other applications.
-- Users may only view tokens sent or purchased from your application.
-- To improve user experience, saved payment methods and KYC verification are only provided to thirdweb; applications cannot view this information.
-
-<DocImage src={AppScoped} />
+<div className="my-4 grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+    <ArticleIconCard
+        title="TypeScript"
+        icon={TypeScriptIcon}
+        description="Configure sign-in options for in-app wallets in TypeScript"
+        href="/typescript/v5/inAppWallet#example"
+    />
+    <ArticleIconCard
+        title="React"
+        icon={ReactIcon}
+        description="Configure sign-in options for in-app wallets in React"
+        href="/react/v5/in-app-wallet/get-started#choose-authentication-methods"
+    />
+    {/* TODO: Link to react native getting started for in app wallet */}
+    <ArticleIconCard
+        title="React Native"
+        icon={ReactIcon}
+        description="Configure sign-in options for in-app wallets in React Native"
+        href="/react/v5/in-app-wallet/get-started#choose-authentication-methods"
+    />
+	<ArticleIconCard
+        title=".NET"
+        icon={DotNetIcon}
+        description="Configure sign-in options for in-app wallets in .NET"
+        href="/dotnet/wallets/providers/in-app-wallet#login-methods"
+    />
+    <ArticleIconCard
+        title="Unity"
+        icon={UnityIcon}
+        description="Configure sign-in options for in-app wallets in Unity"
+        href="/unity/v5/wallets/in-app-wallet#login-methods"
+    />
+    <ArticleIconCard
+        title="Unreal Engine"
+        icon={UnrealEngineIcon}
+        description="Configure sign-in options for in-app wallets in Unreal Engine"
+        href="/unreal-engine/blueprints/in-app-wallet#otp"
+    />
+</div>
 
 ### Ecosystem Wallets
 
-Ecosystem Wallets are scoped to the ecosystem. If users use the same email to sign in to a different application using the same ecosystem, they will get the same wallet.
+In order to configure sign-in options within your ecosystem, first configure the allowed sign-in methods on [your dashboard](https://thirdweb.com/team/~/~/ecosystem). 
 
-#### Benefits of ecosystem scoped wallets
+<DocImage src={EcosystemSocialConfig}/>
 
-- Applications can now share assets across various applications. This is useful if you're a brand powering multiple application and want your partners to take advantage of network effects.
-- Application owner has full control over what happens within each application. This is useful if you're a brand that wants to ensure that all applications in your ecosystem are following the same rules.
+Once configured, refer to the following guides to use the various login options within your ecosystem:
 
-<DocImage src={EcosystemScoped} />
+<div className="my-4 grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+    <ArticleIconCard
+        title="TypeScript"
+        icon={TypeScriptIcon}
+        description="Configure sign-in options for ecosystem wallets in TypeScript"
+        href="/typescript/v5/ecosystemWallet#example"
+    />
+    <ArticleIconCard
+        title="React"
+        icon={ReactIcon}
+        description="Configure sign-in options for ecosystem wallets in React"
+        href="/react/v5/ecosystem-wallet/get-started#configuring-auth-strategies"
+    />
+    {/* TODO: Add react native specific getting started for ecosystem wallets */}
+    <ArticleIconCard
+        title="React Native"
+        icon={ReactIcon}
+        description="Configure sign-in options for ecosystem wallets in React Native"
+        href="/react/v5/ecosystem-wallet/get-started#configuring-auth-strategies"
+    />
+     <ArticleIconCard
+        title=".NET"
+        icon={DotNetIcon}
+        description="Configure sign-in options for ecosystem wallets in .NET"
+        href="/dotnet/wallets/providers/ecosystem-wallet#login-methods"
+    />
+    <ArticleIconCard
+        title="Unity"
+        icon={UnityIcon}
+        description="Configure sign-in options for ecosystem wallets in Unity"
+        href="/unity/v5/wallets/ecosystem-wallet#login-methods"
+    />
+</div>
 
-## Recoverability
+<Callout variant="warning" title="Using disabled auth strategies">
+	Note that while you're allowed to pass any auth strategy today, we recommend only passing the strategies that are enabled on your dashboard. We might enforce this in the future.
+</Callout>
 
-- Users can export their private key at any time. 
+## Other Sign-In options
 
-- Users may recover their wallet from any device by authenticating or signing into an application to receive access to their wallet.
+Most authentication option are that straight forward. However, some options require additional setup or nuances. See below for more information on these options:
 
-- Thirdweb wallets support four categories of authentication: socials, custom authentication, external wallets, and email / phone authentication. If a user ever loses access to their authentication method:
+<div className="flex flex-col space-y-4">
+    <ArticleIconCard
+        href="/wallet/sign-in-methods/guest"
+        icon={UserIcon}
+        title="Guest Mode"
+        description="Learn more about guest mode"
+    />
+    <ArticleIconCard
+        href="/wallet/sign-in-methods/external-wallets"
+        icon={WalletsConnectIcon}
+        title="External Wallet"
+        description="Learn more about external wallet authentication"
+    />
+    <ArticleIconCard
+        href="/wallet/sign-in-methods/custom-auth/overview"
+        icon={EcosystemWalletsIcon}
+        title="Custom Authentication"
+        description="Learn more about custom authentication with your own auth system"
+    />
+</div>
 
-  1. **For socials and email / phone authentication,** users can utilize the recovery flow of their providers to regain access to their account.
-  2. **In the case of custom authentication,** the developer managing their authentication flow will be able to re-instate the users account upon successful verification.
-  3. Application providers **do not have direct access** to user accounts or private keys, as these remain secured within the enclave. The enclave's design ensures that only verified user requests can trigger wallet operations.
+## Interacting with your App
 
-- Users are able to link their authentication methods which will provide them multiple ways to access their account if they ever lose access to any one of their authentication method.
-
-## Security & privacy
-
-### TLS Encryption
-
-To increase security and privacy, private keys or wallet "seed phrases" are never stored or sent over a network. TLS encryption is used in transit for internal and external communications with thirdweb's back-end and databases. TLS encryption is also required for third-party vendors.
-
-### AES-256
-
-Data backups and storage are encrypted with AES-256.
-
-### GDPR & CCPA
-
-thirdweb complies to GDPR and CCPA compliance frameworks and deletes customer data per request within the required timeframe of each standard (30 days for GDPR and 45 for CCPA).
-
-### Audit and Bounty Program
-
-Halborn has audited our enclave wallet security architecture which we'll be releasing shortly, and there is an ongoing bounty program to ensure vulnerabilities are caught. [View the Letter of Attestation.](/pdfs/thirdweb_code_security_audit.pdf)
+Once a user signed in and their wallet is generated, you can use the **[Wallet Connection functions](/typescript/v5/functions#wallets)** to get information about the connected wallet like getting the address, account, and more.
