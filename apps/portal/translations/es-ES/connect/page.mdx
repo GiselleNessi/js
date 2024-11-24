@@ -1,126 +1,77 @@
-import { Callout } from "@doc";
-import { createMetadata, ArticleIconCard } from "@doc";
+import AppScoped from "../assets/app-scoped.svg";
+import EmbedCreation from "../assets/embed-creation.svg";
+import { DocImage, Callout, createMetadata } from "@doc";
 
 export const metadata = createMetadata({
 	image: {
-		title: "Pregenerate Wallets",
+		title: "In-App Wallet Security",
 		icon: "wallets",
 	},
-	title: "Pregenerate Wallets | thirdweb",
-	description: "Learn how to pregenerate wallets for improved user onboarding",
+	title: "In-App Wallet Security",
+	description:
+		"Learn how thirdweb protects your user's private keys using Shamir's Secret Sharing algorithm",
 });
 
-# Pregenerate Wallets
+# How it works
 
-## What is Wallet Pregeneration?
+## Wallet creation
 
-Wallet pregeneration is a technique where you create wallets for users before they actually sign up or authenticate. This allows you to:
+When a user signs into an application using their email or social logins for the first time, a wallet is generated on the user's device. The corresponding wallet key for this wallet is securely split into three shards using [Shamir's Secret Sharing](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing) algorithm.
 
-1. Pre assign wallets to users before they sign up
-2. Reduce the time users spend waiting during the onboarding process
-3. Pre-fund wallets with tokens or NFTs before users claim them
-4. Create smoother user experiences for gaming and other applications
+1. **Shard A** is stored securely on the user's device. For web applications, this is stored on the browser, or for mobile apps, it is in a secure enclave.
+2. **Shard B** is encrypted and stored in [Amazon KMS](https://aws.amazon.com/kms/) using a key known to thirdweb. This process uses [hardware security modules](https://en.wikipedia.org/wiki/Hardware_security_module) (HSMs) to protect the confidentiality and integrity of keys. The encrypted string is stored in thirdweb's database.
+3. **Shard C** is encrypted by user authentication and stored in Amazon's KMS using hardware security modules (HSMs) to protect the confidentiality and integrity of keys. Despite the key stored on thirdweb's servers, thirdweb has no way of decrypting and accessing the key.
 
-## Why Use Wallet Pregeneration?
+<DocImage src={EmbedCreation} />
 
-### Pre-funding Capability
+## Recoverability
 
-You can distribute assets to wallets before users claim them, enabling:
+In-App Wallets are non-custodial, and users can export their private key anytime. Users may recover their wallet from any device by authenticating or signing into an application to receive access to their wallet.
+Threshold secret-sharing cryptography is used to recreate the private key; two of three shards are required.
+If a user loses access to their authentication method (email, social login, or custom authentication), they cannot recover their wallet.
 
-- Pre-loaded game assets
-- Welcome bonus tokens
-- Promotional NFTs
-- Airdrops
+<Callout variant='info'>
 
-### Better User Experience
+thirdweb does not have the ability to access user accounts or reconstruct private keys.
 
-- Users don't have to wait for wallet to be created during signup
-- Reduced failed wallet creation due to network issues
-
-To pregenerate an in-app or ecosystem wallet wallet, you can make a `POST` request to the following endpoint:
-
-```
-https://in-app-wallet.thirdweb.com/api/v1/pregenerate
-```
-
-## Request Body
-
-The request body should be a JSON object with the following parameters:
-
-- `strategy`: The strategy for wallet generation
-- `email` or `phone` or `userId`: The user identifier associated with the wallet to be generated
-
-### Email based wallets
-
-```
-{ strategy: "email", email: "user@example.com" }
-```
-
-When the user logs in with any method associated with that email (including google, facebook, discord auth), they will get access to the same pregenerated wallet.
-
-### Phone based wallets
-
-```
-{ strategy: "phone", phone: "+1321123321" }
-```
-
-### Custom user id based wallets
-
-```
-{ strategy: "custom_auth_endpoint", userId: "some_user_id" }
-```
-
-{/_ TODO: update link when custom auth documentation has been updated _/}
-Use this when [bringing your own authentication method](/connect/in-app-wallet/custom-auth/configuration). When the user logs in, if the user ids you provide from the auth endpoint match, they will get access to the same pregenerated wallet.
-
-## Headers
-
-You need to include the following headers:
-
-- `Content-Type`: Must be set to `application/json`
-- `x-secret-key`: Your secret key for authentication
-- `x-ecosystem-id` (optional): Your ecosystem ID
-- `x-ecosystem-partner-id` (optional): Your ecosystem partner ID
-
-## Example curl Command
-
-Here's an example curl command to pregenerate a thirdweb wallet for the user `user@example.com`:
-
-```bash
-curl -X POST 'https://embedded-wallet.thirdweb.com/api/v1/pregenerate' \
-  -H 'x-ecosystem-id: ecosystem.example-eco-123' \
-  -H 'x-ecosystem-partner-id: 1415d24e-c7b0-4fce-846e-740841ef2c32' \
-  -H 'x-secret-key: 9f8e7d6c5b4a3f2e1d0c9b8a7ffge434b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8e7' \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "strategy": "email",
-    "email": "user@example.com"
-  }'
-```
-
-Replace the header values with your actual client ID, ecosystem ID, and secret key.
-
-<Callout variant='info' title='Pregeneration for ecosystems'>
-For ecosystem wallets, the secret key have to be from the same account as the ecosystem owner. If this is an issue, please reach out to us.
 </Callout>
 
-## Response Format
+## In-App Wallet Scope
 
-A successful API call returns a JSON object in the following format:
+In-App Wallets are scoped to applications per API key. If users use the same email to sign in to a different application using In-App Wallets, the application will manage an entirely different wallet.
 
-```json
-{
-  "wallet": {
-      "address": "string",
-      "createdAt": "string",
-  }
-}
-```
+### Benefits of single application scoped wallets
 
-## What's Next
+- Each application has limited access only to wallets created through their application. It cannot manage wallets from other applications.
+- Users may only view tokens sent or purchased from your application.
+- To improve user experience, saved payment methods and KYC verification are only provided to thirdweb; applications cannot view this information.
 
-Pre-generating is independent and doesn't change the user's experience. 
+Users may view all their application-scoped In-App Wallets in a single view using the [My Wallets](https://ews.thirdweb.com/wallet) dashboard. Learn more about My Wallets.
 
-Your users can continue to login as per usual. When they do, they will be assigned the pregenerated wallet.
+<DocImage src={AppScoped} />
 
-For more information on signing in, see [Sign In](/connect/wallet/sign-in-methods/overview).
+### Scalability
+
+We support up to 100 wallets generated/second by default and can support higher limits (up to 3,000 wallets generated/second) upon request. [Contact Sales](https://thirdweb.com/contact-us) for more information.
+
+### Security & privacy
+
+#### TLS Encryption
+
+To increase security and privacy, private keys or wallet "seed phrases" are never stored or sent over a network. TLS encryption is used in transit for internal and external communications with thirdweb's back-end and databases. TLS encryption is also required for third-party vendors.
+
+#### AES-256
+
+Data backups and storage are encrypted with AES-256.
+
+#### Threshold secret sharing
+
+Using threshold secret sharing, thirdweb cannot reconstruct a user's private key, thereby providing a non-custodial wallet. Additionally, a customer's assets are safe even if thirdweb or the application developer (you) is compromised. In a compromised situation, an attacker may only be able to access one of three shards, which is inadequate to reconstruct the wallet's private key.
+
+#### GDPR & CCPA
+
+thirdweb complies to GDPR and CCPA compliance frameworks and deletes customer data per request within the required timeframe of each standard (30 days for GDPR and 45 for CCPA).
+
+#### Audit and Bounty Program
+
+HackerOne has audited our in-app wallet private key security architecture, and there is an ongoing bounty program to ensure vulnerabilities are caught. [View the Letter of Attestation.](/pdfs/thirdweb_code_security_audit.pdf)
