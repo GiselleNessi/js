@@ -1,0 +1,3 @@
+files:
+  - source: "/apps/portal/src/app/connect/**/*.mdx"  # Path to your MDX files
+    translation: "/apps/portal/translations/<language_code>/connect/**/*.mdx"  # Path for translated files
