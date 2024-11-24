@@ -1,140 +1,146 @@
-import {
-	ArticleCard,
-	GithubTemplateCard,
-	Grid,
-	ExpandableGrid,
-	createMetadata,
-	OpenSourceCard,
-	Stack,
-	ConnectCard,
-	Callout
-} from "@doc";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { createMetadata, DocImage } from "@doc";
 
 export const metadata = createMetadata({
-	title: "thirdweb Connect",
-	description: "Everything you need for your web3 frontend.",
 	image: {
-		title: "thirdweb Connect",
+		title: "thirdweb Pay - Customize ConnectButton",
 		icon: "thirdweb",
 	},
+	title: "thirdweb Pay - Customize ConnectButton - thirdweb",
+	description:
+		"thirdweb Pay - Customizing ConnectButton onramps and crypto purchase flows",
 });
 
-# What is Connect?
+# Customize ConnectButton
 
-Connect is the complete toolkit for connecting every user to your application. It features customizable onboarding flows, self-custodial in-app wallets, account abstraction, onramps, and a performant API to interact with the blockchain.
+Learn how to customize Pay within the `ConnectButton` interface. You can find a selection of popular customizations below. For the full list of props, you can [view the full reference](/references/typescript/v5/ConnectButtonProps).
 
-<div
-	className={cn(
-		"my-4 grid gap-4 md:grid-cols-2 lg:grid-cols-2",
-		props.className,
-	)}
->
-	<ConnectCard
-		title="Playground"
-		href="https://playground.thirdweb.com"
-		iconUrl="/icons/connect/intros/demo.svg"
-	/>
-	<ConnectCard
-		title="Quickstart"
-		href="https://portal.thirdweb.com/react/v5/getting-started"
-		iconUrl="/icons/connect/intros/quickstart.svg"
-	/>
-	{/* <ConnectCard
-		title="Why Connect?"
-		href=""
-		iconUrl="/icons/connect/intros/why-connect.svg"
-	/>
-	<ConnectCard
-		title="Video Tutorial"
-		href=""
-		iconUrl="/icons/connect/intros/video-tutorial.svg"
-	/> */}
-</div>
-### With Connect, you can:
+---
 
-- **Connect to 350+ different wallet providers** with support for every EVM network
-- **Log in and authenticate your users** with customizable and secure [email, phone, passkeys and social login](https://portal.thirdweb.com/connect/in-app-wallet/overview) flows.
-- **Sponsor transactions** to seamlessly onboard non-native or new crypto users with [Account Abstraction](https://portal.thirdweb.com/connect/account-abstraction/overview).
-- **Perform wallet actions** like connecting and disconnecting wallets, viewing balance, displaying ENS names, and execute transactions with our [perfomant, reliable and type safe API](https://portal.thirdweb.com/connect/blockchain-api)
-- **Easily integrate with thirdweb's contracts** to enable users to interact with your application.
-- **Facilitate payments** by letting user top up their wallets or do onchain purchases with a credit card with [Pay](https://portal.thirdweb.com/connect/pay/overview).
+## Customize Supported Tokens
 
-<Callout variant="info" title="Have you generated a client ID?">
-	<div className="flex flex-col gap-4 items-start">
-	<p>
-		You'll need a client ID to access Connect's free blockchain APIs, storage, and more.
-	</p>
-	<Link
-			href="https://thirdweb.com/create-api-key"
-			target="_blank"
-		>
-		<Button> 
-			Generate
-		</Button>
-		</Link>
-	</div>
-</Callout>
+You can enable users to select your token on a given chain by passing an array of `SupportedTokens`. Note that this array overrides all default tokens listed for that chain. Note that this will also show these tokens in the 'Send' screen to transfer tokens.
 
-### Supported Chains
-
-Connect is supported on every EVM compatible chain. To view the full list, visit [thirdweb chainlist](https://thirdweb.com/chainlist).
-
-### Templates
-
-<ExpandableGrid>
-
-<GithubTemplateCard
-	title="Next Starter"
-	href="https://github.com/thirdweb-example/next-starter"
-	tag="Starter"
+```tsx
+<ConnectButton
+	client={client}
+	supportedTokens={{
+		"1": [
+			{
+				address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+				name: "USD Coin",
+				symbol: "USDC",
+				icon: usdcIcon,
+			},
+		],
+	}}
 />
-<GithubTemplateCard
-	title="Vite Starter"
-	href="https://github.com/thirdweb-example/vite-starter"
-	tag="Starter"
-/>
-<GithubTemplateCard
-	title="Node Starter"
-	href="https://github.com/thirdweb-example/node-starter"
-	tag="Starter"
-/>
-<GithubTemplateCard
-	title="Expo Starter"
-	href="https://github.com/thirdweb-example/expo-starter"
-	tag="Starter"
-/>
+```
 
-<GithubTemplateCard
-	title="NFT Marketplace"
-	href="https://github.com/thirdweb-example/marketplace-v3"
-	tag="Builds"
-/>
+---
 
-<GithubTemplateCard
-	title="Auth - NextJS"
-	href="https://github.com/thirdweb-example/thirdweb-auth-next"
-	tag="Example"
-/>
+## Prefill Destination Token
 
-<GithubTemplateCard
-	title="Auth - Express"
-	href="https://github.com/thirdweb-example/thirdweb-auth-express"
-	tag="Example"
-/>
+In the case you want your users to purchase your token by default in your application, you can choose to pre-fill the Pay purchase flow with `prefillBuy` .
 
-<GithubTemplateCard
-	title="Account Abstraction"
-	href="https://github.com/thirdweb-example/account-abstraction"
-	tag="Example"
-/>
+For example, if you wanted users to only purchase Ethereum on Base network, you could do as follows:
 
-<GithubTemplateCard
-	title="Sign in with Farcaster"
-	href="https://github.com/thirdweb-example/thirdweb-siwf"
-	tag="Example"
-/>
+```tsx
+import { base } from "thirdweb/chains";
 
-</ExpandableGrid>
+<ConnectButton
+	client={client}
+	detailsModal={{
+		payOptions: {
+			prefillBuy: {
+				token: {
+					address: "0x866a087038f7C12cf33EF91aC5b1AcE6Ac1DA788",
+					name: "Base ETH",
+					symbol: "ETH",
+					icon: "...", // optional
+				},
+				chain: base,
+				allowEdits: {
+					amount: true, // allow editing buy amount
+					token: false, // disable selecting buy token
+					chain: false, // disable selecting buy chain
+				},
+			},
+		},
+	}}
+/>;
+```
+
+If you'd like to prefill a purchase with a native token, you can set the chain without passing a token:
+
+```tsx
+<ConnectButton
+	client={client}
+	detailsModal={{
+		payOptions: {
+			prefillBuy: {
+				chain: base,
+			},
+		},
+	}}
+/>
+```
+
+---
+
+## Disable Payment Methods
+
+In some cases, you may only want to show users fiat or crypto payment options for your onchain goods or services. You can do this by setting either `buyWithCrypto` or `buyWithFiat` to `false`.
+
+#### Disable Buy With Crypto
+
+```tsx
+<ConnectButton
+	client={client}
+	detailsModal={{
+		payOptions: {
+			buyWithCrypto: false,
+		},
+	}}
+/>
+```
+
+#### Disable Buy With Fiat
+
+```tsx
+<ConnectButton
+	client={client}
+	detailsModal={{
+		payOptions: {
+			buyWithFiat: false,
+		},
+	}}
+/>
+```
+
+---
+
+## Theme
+
+You can set the theme for the Pay component, which is set to `"dark"` by default. theme can be set to either `"dark"` , `"light"` or a custom theme object.
+
+We have [`lightTheme`](/references/typescript/v5/lightTheme) or [`darkTheme`](/references/typescript/v5/darkTheme) providers that you can override to kickstart customization.
+
+You can refer to our [`Theme`](/references/typescript/v5/Theme) page for a full view of customizable options if you’d prefer to create a custom theme from scratch.
+
+#### Provided Themes
+
+```tsx
+<ConnectButton theme='light' />
+
+<ConnectButton theme='dark' />
+```
+
+#### Custom Theme
+
+```tsx
+import { darkTheme } from 'thirdweb/react';
+
+// Using custom theme
+<ConnectButton theme={darkTheme({ ... })} />
+
+```
