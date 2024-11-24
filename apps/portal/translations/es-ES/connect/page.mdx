@@ -1,147 +1,160 @@
-import { ArticleIconCard, AuthList, Callout, DocImage } from "@doc";
-import {UserIcon} from 'lucide-react'
-import {
-    ReactIcon,
-    TypeScriptIcon,
-    UnityIcon,
-    DotNetIcon,
-    ExternalLinkIcon,
-    UnrealEngineIcon,
-    EcosystemWalletsIcon,
-    WalletsConnectIcon
+import { createMetadata, ArticleIconCard, Callout } from "@doc";
+import { 
+  WalletsAuthIcon, 
+  WalletsConnectIcon,     
+  ReactIcon,
+  TypeScriptIcon,
+  UnityIcon,
+  DotNetIcon,
+  ExternalLinkIcon,
+  UnrealEngineIcon 
 } from "@/icons"
-import EcosystemSocialConfig from '../assets/social-config.png'
-import { getSocialIcon } from "thirdweb/wallets/in-app";
 
-# Sign-In Methods
+export const metadata = createMetadata({
+	image: {
+		title: "External Wallets",
+		icon: "wallets",
+	},
+	title: "External Wallets | thirdweb",
+	description:
+		"Learn how to connect and authenticate with external wallets using thirdweb.",
+});
 
-thirdweb supports a bunch of various traditional authentication methods. 
+# External wallets
 
-From social logins via the [OAuth 2.0 Protocol](https://oauth.net/2/), to email and SMS, to passkeys.
+thirdweb natively supports 350+ first-party wallets and all wallets that implement EIP-6963 (Multi-injected Provider Discovery). For the full list, please consult [this list](/typescript/v5/supported-wallets).
 
-For all login methods, thirdweb generates a non-custodial [wallet](/connect/wallet/security) behind the scenes. Thirdweb wallets enable your users to interact with your application, as well as store tokens and assets they receive while interacting with your application.
+You can use an external wallet in many ways. We've outlined these different use cases below:
 
-## Supported Methods
+| USAGE                                                            | BEST FOR                                                                                         |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Connect to site                                                  | Applications simply needing web3 wallet connectivity                                             |
+| Authenticate into your site                                      | Applications requiring authentication with existing web3 users                                   |
+| Authenticate into a thirdweb wallet (either in-app or ecosystem) | Applications looking to provide a seamless web3 application with minimal disruptions and prompts |
 
-<AuthList/>
+The good news is that thirdweb cover each and every one of this use case!
 
-## Enable Sign-In options
+Read on to find out how it's done:
 
-### In-App Wallets
+## Connecting External Wallets
 
-To enable a given sign-in method for the thirdweb wallet, refer to the following guides:
+External wallets are perfect for applications that want to integrate with existing web3 users. These users typically already have wallets like MetaMask, Coinbase Wallet, or Rainbow installed and are familiar with web3 concepts.
+
+<Callout variant="warning" title='Limitations'>
+  Your backend will not know about the user's wallet. 
+  This is fine if the user's wallet is used to sign transactions and interact with the blockchain directly.
+
+  If you need your backend to be aware of the user's wallet, see [SIWE](#authenticating-with-external-wallets).
+
+</Callout>
+
+### Implementation
+
+We have code snippets and guide for various wallet connecting options below:
+
+<ArticleIconCard
+	icon={WalletsConnectIcon}
+	title="Connecting to an external wallet"
+	description="How to get started connecting your application to an external wallet."
+	href="/typescript/v5/supported-wallets"
+/>
+
+## Authenticating with External Wallets
+
+Authentication with external wallets using Sign-In with Ethereum (SIWE) enables your backend to securely verify user wallet ownership. This is essential for applications requiring user-specific data or authenticated actions.
+
+<Callout variant="info" title='Key Difference'>
+  Unlike simple wallet connections, SIWE authentication creates a session between your backend and the user's wallet, enabling secure, authenticated API calls.
+
+  However, users will still require to sign prompts when interacting with the blockchain via their wallets. If you want an invisible web3 experience, consider using [thirdweb wallets](#authenticating-with-external-wallets-into-thirdweb-wallets).
+
+</Callout>
+
+### Implementation
+
+<ArticleIconCard
+	icon={WalletsAuthIcon}
+	title="Sign In With Ethereum"
+	description="A whole dedicated guides covering everything you need to know about SIWE."
+	href="/connect/auth"
+/>
+
+## Authenticating with External Wallets into thirdweb Wallets
+
+thirdweb wallets provide a seamless web3 experience with minimal prompts and disruptions. This will provide you, the developer with full control of how the user interacts with your application.
+
+Note, however, that the wallet interacting with your application will be a thirdweb wallet, not the user's external wallet. While we provide methods to export keys and see how the external wallet and thirdweb wallet are linked, if your app requires the user's external wallet, you should use [SIWE](#authenticating-with-external-wallets) instead.
+
+### Implementation
+
+#### In App Wallet
 
 <div className="my-4 grid gap-2 md:grid-cols-2 lg:grid-cols-3">
     <ArticleIconCard
         title="TypeScript"
         icon={TypeScriptIcon}
-        description="Configure sign-in options for in-app wallets in TypeScript"
-        href="/typescript/v5/inAppWallet#example"
+        description="Configure logging in with an external wallet for ecosystem wallets in TypeScript"
+        href="/typescript/v5/inAppWallet#login-with-siwe"
     />
     <ArticleIconCard
         title="React"
         icon={ReactIcon}
-        description="Configure sign-in options for in-app wallets in React"
+        description="Configure logging in with an external wallet for ecosystem wallets in React"
         href="/react/v5/in-app-wallet/get-started#choose-authentication-methods"
     />
-    {/* TODO: Link to react native getting started for in app wallet */}
+    {/* TODO: Add react native specific getting started for ecosystem wallets */}
     <ArticleIconCard
         title="React Native"
         icon={ReactIcon}
-        description="Configure sign-in options for in-app wallets in React Native"
+        description="Configure logging in with an external wallet for ecosystem wallets in React Native"
         href="/react/v5/in-app-wallet/get-started#choose-authentication-methods"
     />
-	<ArticleIconCard
+     <ArticleIconCard
         title=".NET"
         icon={DotNetIcon}
-        description="Configure sign-in options for in-app wallets in .NET"
+        description="Connect ecosystem wallets in .NET"
         href="/dotnet/wallets/providers/in-app-wallet#login-methods"
     />
     <ArticleIconCard
         title="Unity"
         icon={UnityIcon}
-        description="Configure sign-in options for in-app wallets in Unity"
-        href="/unity/v5/wallets/in-app-wallet#login-methods"
-    />
-    <ArticleIconCard
-        title="Unreal Engine"
-        icon={UnrealEngineIcon}
-        description="Configure sign-in options for in-app wallets in Unreal Engine"
-        href="/unreal-engine/blueprints/in-app-wallet#otp"
+        description="Configure logging in with an external wallet for ecosystem wallets in Unity"
+        href="/unity/v5/wallets/in-app-wallet#login-with-siwe"
     />
 </div>
 
-### Ecosystem Wallets
-
-In order to configure sign-in options within your ecosystem, first configure the allowed sign-in methods on [your dashboard](https://thirdweb.com/team/~/~/ecosystem). 
-
-<DocImage src={EcosystemSocialConfig}/>
-
-Once configured, refer to the following guides to use the various login options within your ecosystem:
+#### Ecosystem Wallet
 
 <div className="my-4 grid gap-2 md:grid-cols-2 lg:grid-cols-3">
     <ArticleIconCard
         title="TypeScript"
         icon={TypeScriptIcon}
-        description="Configure sign-in options for ecosystem wallets in TypeScript"
-        href="/typescript/v5/ecosystemWallet#example"
+        description="Configure logging in with an external wallet for ecosystem wallets in TypeScript"
+        href="/typescript/v5/ecosystemWallet#logging-into-an-ecosystem-wallet"
     />
     <ArticleIconCard
         title="React"
         icon={ReactIcon}
-        description="Configure sign-in options for ecosystem wallets in React"
+        description="Configure logging in with an external wallet for ecosystem wallets in React"
         href="/react/v5/ecosystem-wallet/get-started#configuring-auth-strategies"
     />
     {/* TODO: Add react native specific getting started for ecosystem wallets */}
     <ArticleIconCard
         title="React Native"
         icon={ReactIcon}
-        description="Configure sign-in options for ecosystem wallets in React Native"
+        description="Configure logging in with an external wallet for ecosystem wallets in React Native"
         href="/react/v5/ecosystem-wallet/get-started#configuring-auth-strategies"
     />
      <ArticleIconCard
         title=".NET"
         icon={DotNetIcon}
-        description="Configure sign-in options for ecosystem wallets in .NET"
+        description="Connect ecosystem wallets in .NET"
         href="/dotnet/wallets/providers/ecosystem-wallet#login-methods"
     />
     <ArticleIconCard
         title="Unity"
         icon={UnityIcon}
-        description="Configure sign-in options for ecosystem wallets in Unity"
-        href="/unity/v5/wallets/ecosystem-wallet#login-methods"
+        description="Configure logging in with an external wallet for ecosystem wallets in Unity"
+        href="/unity/v5/wallets/ecosystem-wallet#login-with-siwe"
     />
 </div>
-
-<Callout variant="warning" title="Using disabled auth strategies">
-	Note that while you're allowed to pass any auth strategy today, we recommend only passing the strategies that are enabled on your dashboard. We might enforce this in the future.
-</Callout>
-
-## Other Sign-In options
-
-Most authentication option are that straight forward. However, some options require additional setup or nuances. See below for more information on these options:
-
-<div className="flex flex-col space-y-4">
-    <ArticleIconCard
-        href="/wallet/sign-in-methods/guest"
-        icon={UserIcon}
-        title="Guest Mode"
-        description="Learn more about guest mode"
-    />
-    <ArticleIconCard
-        href="/wallet/sign-in-methods/external-wallets"
-        icon={WalletsConnectIcon}
-        title="External Wallet"
-        description="Learn more about external wallet authentication"
-    />
-    <ArticleIconCard
-        href="/wallet/sign-in-methods/custom-auth/overview"
-        icon={EcosystemWalletsIcon}
-        title="Custom Authentication"
-        description="Learn more about custom authentication with your own auth system"
-    />
-</div>
-
-## Interacting with your App
-
-Once a user signed in and their wallet is generated, you can use the **[Wallet Connection functions](/typescript/v5/functions#wallets)** to get information about the connected wallet like getting the address, account, and more.
