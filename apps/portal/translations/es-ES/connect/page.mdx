@@ -1,240 +1,163 @@
-import {
-	Tabs,
-	TabsList,
-	TabsTrigger,
-	TabsContent,
-	Steps,
-	Step,
-	DocImage,
-	Callout,
-	createMetadata,
-} from "@doc";
+import { Callout, Steps, Step, DocImage, createMetadata } from "@doc";
 import EWCreateKey from "../images/ew-create-key.png";
-import EWCustomAuthConfig from "../images/ew-custom-auth-config.png";
-import EWCustomAuthFlow from "../images/ew-custom-auth-flow.png";
+import EWConfig from "../images/ew-configuration.png";
+import EWConfigOpt from "../images/ew-configuration-opt.png";
+import EWJWKCreatorTool from "../images/jwk-creator-tool.png";
 
 export const metadata = createMetadata({
 	image: {
-		title: "Custom Auth Server for In-App Wallet",
+		title: "Create a Custom JWT Auth Server for In-App Wallet",
 		icon: "wallets",
 	},
-	title: "Custom Auth Server | InAppWallet",
+	title: "Create a Custom JWT Auth Server | InAppWallet",
 	description:
 		"Learn how to integrate your auth backend with our in-app wallets solution so you can onboard your users into web3 seamlessly.",
 });
 
-# Custom Auth Server
+# Create a Custom JWT Auth Server
 
 Learn how to integrate your auth backend with our in-app wallets solution so you can onboard your users into web3 seamlessly.
 
-This guide will show you how to create your own Auth Server that is compatible with the `auth_endpoint` strategy. By doing so, you can have full control over user authentication and data security. This allows you to ensure that your application meets specific compliance requirements while also providing a customized sign-in experience.
+This guide will show you how to create your own Auth Server that is compatible with the JWT auth strategy. By doing so, you can have full control over user authentication and data security. This allows you to ensure that your application meets specific compliance requirements while also providing a customized sign-in experience.
 
-<Callout variant="warning" title="Security">
-	This guide is simplified for demonstration purposes and is not ready for
-	production use. When modifying it for production, secure your endpoints and
-	avoid hard-coding secrets or sensitive information. We recommend using
-	environment variables and secret managers.
+<Callout title="Caution" variant="danger">
+
+This guide is simplified for demonstration purposes and is not ready for production use. When modifying it for production, secure your endpoints and avoid hard-coding secrets or sensitive information. We recommend using environment variables and secret managers.
+
 </Callout>
 
-## 5 minute quickstart
-
 <Steps>
 
-<Step title="Step 1">
-	Navigate to Your Team > Project > Connect > In-App Wallets Page from the (dashboard)[https://thirdweb.com/team]
-</Step>
+<Step title="Setup">
+1. Create a new directory for your project and navigate to it in your CLI
 
-<Step title="Step 2">
-	Create a thirdweb API key if you don't have one or select an existing key to
-	use for this project. [Learn more about API
-	keys.](/api-keys)
+````
+  ```bash
+  mkdir jwt-auth-server
+  cd jwt-auth-server
+  ```
+````
 
-<DocImage src={EWCreateKey} />
+2. Initialize a new Node.js application
 
-</Step>
+   ```bash
+   npm init -y
+   yarn init -y
+   ```
 
-<Step title="Step 3">
-	Allowlist domain or bundle IDs in Access Restrictions.
-</Step>
+3. Install the necessary packages
 
-<Step title="Step 4">
-	Navigate to the Configuration view and enable **Custom Auth Endpoint**
-
-```
-<DocImage src={EWCustomAuthConfig} />
-```
-
-</Step>
-
-<Step title="Step 5">
-	Set the Auth Endpoint URL to
-	`https://embedded-wallet.thirdweb.com/api/2023-11-30/embedded-wallet/auth/test-custom-auth-endpoint`
-	for testing purposes. You will replace this later with your own auth server
-	endpoint to verify the `payload`.
-</Step>
-
-<Step title="Step 6">Save the configuration.</Step>
-
-<Step title="Step 7">Copy the client ID.</Step>
-
-<Step title="Step 8">
-	In your preferred thirdweb client SDK, pass the payload you retrieved from
-	logging in to the server.
-</Step>
-
-</Steps>
-
-You can now auth into the wallet and use it to sign transactions like so (see [use your own auth for more](/in-app-wallet/custom-auth)):
-
-<Tabs defaultValue="react">
-<TabsList>
-	<TabsTrigger value="react">React & React Native</TabsTrigger>
-	<TabsTrigger value="typescript">Other Frameworks</TabsTrigger>
-</TabsList>
-
-<TabsContent value="react">
-
-```typescript
-import { inAppWallet } from "thirdweb/wallets";
-import { useConnect } from "thirdweb/react";
-
-const { connect } = useConnect();
-
-const handlePostLogin = async (jwt: string) => {
-	await connect(() => {
-		const wallet = inAppWallet();
-		wallet.connect({
-			client,
-			strategy: "auth_endpoint",
-			payload: JSON.stringify({ userId: "ANY_RANDOM_ID_HERE" }),
-		});
-		return wallet;
-	});
-};
-```
-
-</TabsContent>
-
-<TabsContent value="typescript">
-
-```typescript
-import { inAppWallet } from "thirdweb/wallets";
-
-const wallet = inAppWallet();
-
-const account = await wallet.connect({
-	client,
-	strategy: "auth_endpoint",
-	payload: JSON.stringify({ userId: "ANY_RANDOM_ID_HERE" }),
-});
-
-// use the account to send transactions
-```
-
-</TabsContent>
-</Tabs>
-
-A persistent, cross-platform wallet is now created for your user!
-
-Of course, you would use your own auth server instead of the one we provided. The rest of this guide will show you how to create your own auth server.
-
-### Setup
-
-The following steps will show you how to create a simple auth server that can be used with the embedded wallet.
-
-At a high level, the auth server will:
-
-1. Handle login for the user into your application.
-2. Have a way to get a public identifier for the user.
-3. Have an endpoint to verify the public identifier and return some basic information about the user
-
-Steps 1 and 2 are up to you to implement. You can use any auth strategy you want.
-
-The endpoint in step 3 is what you register as your auth endpoint on the thirdweb dashboard.
-
-Here's a high-level diagram:
-
-<DocImage src={EWCustomAuthFlow} />
-
-<Steps>
-
-<Step title="Step 1">
-
-Create a new directory for your project and navigate to it in your CLI
-
-```bash
-mkdir custom-auth-server
-cd custom-auth-server
-```
+   ```bash
+   npm install express jsonwebtoken
+   ```
 
 </Step>
 
-<Step title="Step 2">
+<Step title="Generate RSA Key Pair">
+1. To generate a private and a public key run
 
-Initialize a new Node.js application
+````
+  ```bash
+  ssh-keygen -t rsa -b 2048 -m PEM -f keys/rsa.key
+  ```
+````
 
-```bash
-npm init -y
-```
+2. To create the output file run
 
-OR
-
-```bash
-yarn init -y
-```
+   ```bash
+   openssl rsa -in keys/rsa.key -pubout -outform PEM -out keys/rsa.key.pub
+   ```
 
 </Step>
 
-</Steps>
+<Step title="Convert Public Key to JSON Web Key Set (JWKS)">
 
-### **Create the Server:**
+1. Display the public key:
 
-In the `custom-auth-server` directory, create a file at the root named `server.js` and paste the following:
+   ```bash
+   cat keys/rsa.key.pub
+   ```
 
-```jsx
-const express = require("express");
-const fs = require("fs");
+2. Copy the displayed public key.
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+3. Convert your public key to a JWK using an online JWK Creator tool. We recommend using [JWK Creator by Russel Davies](https://github.com/russelldavies/jwk-creator).
 
-const users = [{ id: 1, email: "user@example.com", password: "password123" }];
+   1. Paste the public key, set Key ID as `0` (arbitrary string, must match when signing JWT), and then note down the generated JWK.
 
-app.use(express.json());
+   <DocImage src={EWJWKCreatorTool} />
 
-// This is what your app calls to log in a user and get a public identifier for the user (otherwise known as the payload)
-app.post("/login", (req, res) => {
-	const { email, password } = req.body;
-	const user = users.find((u) => u.email === email && u.password === password);
-	if (!user) return res.status(401).send({ message: "Invalid credentials" });
+4. Create a `jwks.json` in the project root and place the generated JWK in a `keys` array.
 
-	res.send({ payload: user.id });
-});
+   ```bash
+   {
+     "keys": [
+       {
+          ... JWK ...
+       }
+     ]
+   }
+   ```
 
-// This is a sample endpoint that you would register on the thirdweb dashboard for us to verify the payload
-app.post("/thirdweb-will-call-this", (req, res) => {
-	const { payload } = req.body;
-	if (!payload) return res.status(401).send({ message: "Invalid credentials" });
+</Step>
 
-	// You would write your own logic here to verify the payload here
-	const user = users.find((u) => u.id === payload);
-	if (!user) return res.status(401).send({ message: "Invalid credentials" });
+<Step title="Create the Server">
 
-	// Once the user is successfully verified, you can return the following field
-	return res.send({
-		userId: user.id,
-		// The last two fields here are optional
-		email: user.email,
-		exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30,
-	});
-});
+1. In the `jw-auth-server` directory, create a file at the root named `server.js` and paste the following:
 
-app.listen(PORT, () => {
-	console.log(`Server started on port ${PORT}`);
-});
-```
+   ```jsx
+   const express = require("express");
+   const fs = require("fs");
+   const jwt = require("jsonwebtoken");
 
-### **Test Locally**
+   const app = express();
+   const PORT = process.env.PORT || 3000;
+
+   const PRIVATE_KEY = fs.readFileSync("./keys/rsa.key", "utf8");
+   const jwks = require("./jwks.json");
+
+   const users = [
+   	{ id: 1, email: "user@example.com", password: "password123" },
+   ];
+
+   app.use(express.json());
+
+   app.post("/login", (req, res) => {
+   	const { email, password } = req.body;
+   	const user = users.find(
+   		(u) => u.email === email && u.password === password,
+   	);
+   	if (!user) return res.status(401).send({ message: "Invalid credentials" });
+
+   	const payload = {
+   		iss: "http://your-domain.com",
+   		sub: user.id.toString(),
+   		aud: "EpicGame",
+   		email: user.email,
+   		exp: Math.floor(Date.now() / 1000) + 3600,
+   	};
+
+   	const token = jwt.sign(payload, PRIVATE_KEY, {
+   		algorithm: "RS256",
+   		keyid: "0",
+   	});
+
+   	res.send({ token });
+   });
+
+   app.get("/.well-known/jwks.json", (req, res) => {
+   	res.json(jwks);
+   });
+
+   app.listen(PORT, () => {
+   	console.log(`Server started on port ${PORT}`);
+   });
+   ```
+
+2. Replace `http://your-domain.com` with the actual domain for the application.
+
+</Step>
+
+<Step title="Test Locally">
 
 1. Start the server:
 
@@ -248,10 +171,47 @@ app.listen(PORT, () => {
    curl -X POST http://localhost:3000/login -H "Content-Type: application/json" -d '{"email": "user@example.com", "password": "password123"}'
    ```
 
-### **Deploy**
+3. Test JWKS:
 
+   ```bash
+   curl http://localhost:3000/.well-known/jwks.json
+   ```
+
+</Step>
+
+<Step title="Deploy">
 To deploy the server, you can use services such as [Zeet](https://zeet.co/) or [Docker](https://www.docker.com/).
 
-### **Integrate In-App Wallets**
+Once deployed, replace `http://localhost:3000` in the JWT payload with your actual domain
 
-Refer top the [quickstart above](#5-minute-quickstart) to integrate the embedded wallet into your application.
+</Step>
+
+<Step title="Integrate In-App Wallets">
+
+1. Navigate to Team > Project > Connect > In-App Wallets in [thirdweb dashboard](https://thirdweb.com/team)
+
+2. Create a new API key by creating a Project if you don't have one or select an existing one to use for this project. [Learn more about API keys.](/api-keys)
+
+   <DocImage src={EWCreateKey} />
+
+3. Allowlist domain or bundle IDs in Access Restrictions.
+
+4. Navigate to the Configuration view and enable **Custom JSON Web Token**
+
+   <DocImage src={EWConfig} />
+
+5. Set the JWKS URI to `your-domain/.well-known/jwks.json`
+
+6. Set the AUD to `EpicGame` or the value you set as the `aud` in the `server.js` file.
+
+   <DocImage src={EWConfigOpt} />
+
+7. Copy the client ID.
+
+8. In your preferred thirdweb client SDK, pass the JWT you retrieved from logging in to the server.
+
+</Step>
+
+</Steps>
+
+A persistent, cross-platform wallet is now created for your user.
