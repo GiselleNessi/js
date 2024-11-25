@@ -1,90 +1,78 @@
-import { createMetadata } from "@doc";
+import {
+	Grid,
+	Callout,
+	OpenSourceCard,
+	ArticleIconCard,
+	createMetadata,
+} from "@doc";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-
-# Batching transactions
+import { WalletsSmartIcon } from "@/icons";
 
 export const metadata = createMetadata({
 	image: {
-		title: "Batching transactions",
+		title: "Account Factories",
 		icon: "wallets",
 	},
-	title: "Batching transactions | thirdweb",
-	description: "How to batch transactions with smart accounts",
+	title: "Deploy your own ERC-4337 Account Factories | thirdweb",
+	description:
+		"Customize the behavior of smart accounts by deploying your own account factory contracts.",
 });
 
-Batching transactions allows sending multiple transactions in a single user operation. This can be useful to save on fees, reduce number of user confimations or to ensure that multiple transactions are executed atomically.
+# Account Factories
 
-A typical example is to do an approval and a transfer in a single userOperation. This way, the transfer will only happen if the approval is successful.
+By default, the SDK uses a global account factory deployed on most chains:
 
-<Tabs defaultValue="react">
+- [`AccountFactory`](https://thirdweb.com/thirdweb.eth/AccountFactory) at address [`0x85e23b94e7F5E9cC1fF78BCe78cfb15B81f0DF00`](https://thirdweb.com/1/0x85e23b94e7F5E9cC1fF78BCe78cfb15B81f0DF00) for Entrypoint v0.6.
+- [`AccountFactory_0_7`](https://thirdweb.com/thirdweb.eth/AccountFactory_0_7) at address [`0x4be0ddfebca9a5a4a617dee4dece99e7c862dceb`](https://thirdweb.com/1/0x4be0ddfebca9a5a4a617dee4dece99e7c862dceb) for Entrypoint v0.7.
 
-<TabsList>
-	<TabsTrigger value="react">React</TabsTrigger>
-	<TabsTrigger value="typescript">TypeScript</TabsTrigger>
-</TabsList>
+The default account factory deploys standard, immutable accounts with the features listed below. However, you can customize the behavior of your apps smart accounts by deploying your own account factory contracts.
 
-<TabsContent value="react">
+## Deploy your own Account Factory contract
 
-```tsx
-import { useActiveAccount, useSendBatchTransaction } from "thirdweb/react";
-import { approve, transferFrom } from "thirdweb/extensions/erc20";
+You can deploy your own Account Factory via the [explore page](https://thirdweb.com/explore/smart-wallet) or build your own [ERC 4337](https://eips.ethereum.org/EIPS/eip-4337) compatible factory contract using the [Solidity SDK](/contracts/build/base-contracts/erc-4337).
 
-const smartAccount = useActiveAccount();
-const { mutate: sendBatchTransaction } = useSendBatchTransaction();
+thirdweb offers different kinds of prebuilt account factories:
 
-const approveAndTransfer = async () => {
-	const transactions = [
-		approve({
-			contract,
-			spender: "0x...",
-			value: 100,
-		}),
-		transferFrom({
-			contract,
-			from: "0x...",
-			to: "0x...",
-			amount: 100,
-		}),
-	];
-	await sendBatchTransaction(transactions);
-};
-```
+<Grid>
+	<ArticleIconCard
+		title="Account Factory for Entrypoint v0.6"
+		href="https://thirdweb.com/thirdweb.eth/AccountFactory"
+		icon={WalletsSmartIcon}
+	/>
+	<ArticleIconCard
+		title="Managed Account Factory for Entrypoint v0.6"
+		href="https://thirdweb.com/thirdweb.eth/ManagedAccountFactory"
+		icon={WalletsSmartIcon}
+	/>
+	<ArticleIconCard
+		title="Account Factory for Entrypoint v0.7"
+		href="https://thirdweb.com/thirdweb.eth/AccountFactory_0_7"
+		icon={WalletsSmartIcon}
+	/>
+	<ArticleIconCard
+		title="Managed Account Factory for Entrypoint v0.7"
+		href="https://thirdweb.com/thirdweb.eth/ManagedAccountFactory_0_7"
+		icon={WalletsSmartIcon}
+	/>
+</Grid>
 
-</TabsContent>
+#### Account Factories comparison
 
-<TabsContent value="typescript">
+| Factory Type                                                         | Upgradeability                                              | Expected Usage                                                                                                                                                                                 |
+| -------------------------------------------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`Standard`](https://thirdweb.com/thirdweb.eth/AccountFactory)       | Non-upgradeable                                             | Developer wants to issue simple smart accounts to their users. They do not anticipate that users wallets will need any feature upgrades.                                                       |
+| [`Managed`](https://thirdweb.com/thirdweb.eth/ManagedAccountFactory) | Account upgrades controlled centrally by the app developer. | Developer wants to issue smart accounts to their users. They do anticipate feature upgrades to user wallets, and want to push upgrades to user wallets for seamless/invisible UX for upgrades. |
 
-```tsx
-import { smartWallet } from "thirdweb/wallets";
-import { sendBatchTransaction } from "thirdweb";
-import { approve, transferFrom } from "thirdweb/extensions/erc20";
+#### Account comparison
 
-const smartWallet = new smartWallet(config);
-const smartAccount = await smartWallet.connect({
-	client,
-	personalAccount,
-});
+|                                                     | Simple                     | Managed                                  |
+| --------------------------------------------------- | -------------------------- | ---------------------------------------- |
+| Contracts                                           | `AccountFactory` `Account` | `ManagedAccountFactory` `ManagedAccount` |
+| ERC-4337 Compatible                                 | ✅                          | ✅                                        |
+| Can hold native ERC-20, ERC-721 and ERC-1155 Tokens | ✅                          | ✅                                        |
+| Multi-signer                                        | ✅                          | ✅                                        |
+| Execute transactions in Batches                     | ✅                          | ✅                                        |
+| Is the Account Upgradeable                          | ❌                          | ✅                                        |
+| Who controls upgrades (?)                           | n/a                        | Admin of the account factory.            |
 
-const transactions = [
-	approve({
-		contract,
-		spender: "0x...",
-		value: 100,
-	}),
-	transferFrom({
-		contract,
-		from: "0x...",
-		to: "0x...",
-		amount: 100,
-	}),
-];
-
-await sendBatchTransaction({
-	transactions,
-	account: smartAccount,
-});
-```
-
-</TabsContent>
-
-</Tabs>
+To learn more about each factory and their respective account implementations, read our [smart contract deep dive](https://blog.thirdweb.com/smart-contract-deep-dive-building-smart-wallets-for-individuals-and-teams/).
