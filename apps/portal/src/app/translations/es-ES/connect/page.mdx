@@ -1,103 +1,126 @@
-import { DocImage, Callout, createMetadata } from "@doc";
-import EnclaveWalletCreation from "./assets/enclave-wallet-creation.png";
-import AppScoped from "./assets/app-scoped.svg";
-import EcosystemScoped from "./assets/ecosystem-scoped.svg";
+import { Callout } from "@doc";
+import { createMetadata, ArticleIconCard } from "@doc";
 
 export const metadata = createMetadata({
 	image: {
-		title: "In App wallet and Ecosystem Security",
+		title: "Pregenerate Wallets",
 		icon: "wallets",
 	},
-	title: "thirdweb Wallet Security",
-	description:
-		"Learn how thirdweb protects your user's private keys across applications using nitro Enclaves",
+	title: "Pregenerate Wallets | thirdweb",
+	description: "Learn how to pregenerate wallets for improved user onboarding",
 });
 
-# thirdweb Wallet Security
+# Pregenerate Wallets
 
-If you are looking for the previous security documentation around the shamir secret sharing model, please refer to the [In-App Wallet Security](/connect/wallet/security/legacy) page.
+## What is Wallet Pregeneration?
 
-## Wallet Creation
+Wallet pregeneration is a technique where you create wallets for users before they actually sign up or authenticate. This allows you to:
 
-When a user signs into an application using their email or social logins for the first time, a wallet is generated within a secure enclave on the server after verifying the user's legitimacy. The enclave provides a trusted execution environment, ensuring the wallet creation process is isolated and protected from external interference.
+1. Pre assign wallets to users before they sign up
+2. Reduce the time users spend waiting during the onboarding process
+3. Pre-fund wallets with tokens or NFTs before users claim them
+4. Create smoother user experiences for gaming and other applications
 
-- The wallet and its corresponding private key are generated entirely within the enclave, never leaving its secure confines.
-- User authentication data is verified within the enclave, ensuring that only legitimate, authenticated users can initiate wallet creation.
+## Why Use Wallet Pregeneration?
 
-<DocImage src={EnclaveWalletCreation} className="max-w-96" />
+### Pre-funding Capability
 
-## Security Measures
+You can distribute assets to wallets before users claim them, enabling:
 
-- The enclave's cryptographic properties ensure that even the server operators cannot access the contents or operations within the enclave.
-- The enclave provides a verifiable hash of the image of the code that is being run on the device, allowing anyone to verify the contents of the code.
-- The wallet's private key never exists in an unencrypted form outside of the enclave.
-- All sensitive operations, such as transaction signing, occur within the enclave, ensuring the wallet's security.
+- Pre-loaded game assets
+- Welcome bonus tokens
+- Promotional NFTs
+- Airdrops
 
-## Wallet Usage
+### Better User Experience
 
-### General Usage
+- Users don't have to wait for wallet to be created during signup
+- Reduced failed wallet creation due to network issues
 
-- When users interact with their wallet via the the enclave, all communications are encrypted and only the legitimate user can access their wallet.
-- All traffic is encrypted with TLS and HSTS. Services are run in private VPCs on AWS and accessible only from a single entry point via our Cloudflare DNS.
-- Applications can [link multiple authentication methods](/connect/in-app-wallet/guides/link-multiple-profiles) to the same wallet. Any of these methods can be used to authenticate into the users wallet.
+To pregenerate an in-app or ecosystem wallet wallet, you can make a `POST` request to the following endpoint:
 
-### Ecosystem Usage
+```
+https://in-app-wallet.thirdweb.com/api/v1/pregenerate
+```
 
-Ecosystem wallets are controlled by the ecosystem owner. Ecosystem owners are able to specify usage policies for their partners and developers which restricts what they can do with the wallet. Unlike the shamir secret sharing model, the enclave wallet model ensures that the private key is never reconstructed on the client. This ensures no-one can extract the private key from the client, including other developers in the ecosystem. Moreover, it also means that partners and developers must submit the request to the enclave which would be able to verify the request and block requests that are out of scope or denied by the ecosystem owner.  
+## Request Body
 
-## Scopes
+The request body should be a JSON object with the following parameters:
 
-### In App Wallets
+- `strategy`: The strategy for wallet generation
+- `email` or `phone` or `userId`: The user identifier associated with the wallet to be generated
 
-In-App Wallets are scoped to applications per Client ID. If users use the same email to sign in to a different application using In-App Wallets, the application will manage an entirely different wallet.
+### Email based wallets
 
-#### Benefits of single application scoped wallets
+```
+{ strategy: "email", email: "user@example.com" }
+```
 
-- Each application has limited access only to wallets created through their application. It cannot manage wallets from other applications.
-- Users may only view tokens sent or purchased from your application.
-- To improve user experience, saved payment methods and KYC verification are only provided to thirdweb; applications cannot view this information.
+When the user logs in with any method associated with that email (including google, facebook, discord auth), they will get access to the same pregenerated wallet.
 
-<DocImage src={AppScoped} />
+### Phone based wallets
 
-### Ecosystem Wallets
+```
+{ strategy: "phone", phone: "+1321123321" }
+```
 
-Ecosystem Wallets are scoped to the ecosystem. If users use the same email to sign in to a different application using the same ecosystem, they will get the same wallet.
+### Custom user id based wallets
 
-#### Benefits of ecosystem scoped wallets
+```
+{ strategy: "custom_auth_endpoint", userId: "some_user_id" }
+```
 
-- Applications can now share assets across various applications. This is useful if you're a brand powering multiple application and want your partners to take advantage of network effects.
-- Application owner has full control over what happens within each application. This is useful if you're a brand that wants to ensure that all applications in your ecosystem are following the same rules.
+{/_ TODO: update link when custom auth documentation has been updated _/}
+Use this when [bringing your own authentication method](/connect/in-app-wallet/custom-auth/configuration). When the user logs in, if the user ids you provide from the auth endpoint match, they will get access to the same pregenerated wallet.
 
-<DocImage src={EcosystemScoped} />
+## Headers
 
-## Recoverability
+You need to include the following headers:
 
-- Users can export their private key at any time. 
+- `Content-Type`: Must be set to `application/json`
+- `x-secret-key`: Your secret key for authentication
+- `x-ecosystem-id` (optional): Your ecosystem ID
+- `x-ecosystem-partner-id` (optional): Your ecosystem partner ID
 
-- Users may recover their wallet from any device by authenticating or signing into an application to receive access to their wallet.
+## Example curl Command
 
-- Thirdweb wallets support four categories of authentication: socials, custom authentication, external wallets, and email / phone authentication. If a user ever loses access to their authentication method:
+Here's an example curl command to pregenerate a thirdweb wallet for the user `user@example.com`:
 
-  1. **For socials and email / phone authentication,** users can utilize the recovery flow of their providers to regain access to their account.
-  2. **In the case of custom authentication,** the developer managing their authentication flow will be able to re-instate the users account upon successful verification.
-  3. Application providers **do not have direct access** to user accounts or private keys, as these remain secured within the enclave. The enclave's design ensures that only verified user requests can trigger wallet operations.
+```bash
+curl -X POST 'https://embedded-wallet.thirdweb.com/api/v1/pregenerate' \
+  -H 'x-ecosystem-id: ecosystem.example-eco-123' \
+  -H 'x-ecosystem-partner-id: 1415d24e-c7b0-4fce-846e-740841ef2c32' \
+  -H 'x-secret-key: 9f8e7d6c5b4a3f2e1d0c9b8a7ffge434b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8e7' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "strategy": "email",
+    "email": "user@example.com"
+  }'
+```
 
-- Users are able to link their authentication methods which will provide them multiple ways to access their account if they ever lose access to any one of their authentication method.
+Replace the header values with your actual client ID, ecosystem ID, and secret key.
 
-## Security & privacy
+<Callout variant='info' title='Pregeneration for ecosystems'>
+For ecosystem wallets, the secret key have to be from the same account as the ecosystem owner. If this is an issue, please reach out to us.
+</Callout>
 
-### TLS Encryption
+## Response Format
 
-To increase security and privacy, private keys or wallet "seed phrases" are never stored or sent over a network. TLS encryption is used in transit for internal and external communications with thirdweb's back-end and databases. TLS encryption is also required for third-party vendors.
+A successful API call returns a JSON object in the following format:
 
-### AES-256
+```json
+{
+  "wallet": {
+      "address": "string",
+      "createdAt": "string",
+  }
+}
+```
 
-Data backups and storage are encrypted with AES-256.
+## What's Next
 
-### GDPR & CCPA
+Pre-generating is independent and doesn't change the user's experience. 
 
-thirdweb complies to GDPR and CCPA compliance frameworks and deletes customer data per request within the required timeframe of each standard (30 days for GDPR and 45 for CCPA).
+Your users can continue to login as per usual. When they do, they will be assigned the pregenerated wallet.
 
-### Audit and Bounty Program
-
-Halborn has audited our enclave wallet security architecture which we'll be releasing shortly, and there is an ongoing bounty program to ensure vulnerabilities are caught. [View the Letter of Attestation.](/pdfs/thirdweb_code_security_audit.pdf)
+For more information on signing in, see [Sign In](/connect/wallet/sign-in-methods/overview).
