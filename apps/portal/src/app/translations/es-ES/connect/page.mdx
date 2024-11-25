@@ -1,94 +1,90 @@
-import { Callout, DocImage, createMetadata, Steps, Step } from "@doc";
-import CreateEcosystemWallet from "../assets/create-ecosystem-wallet.png";
-import EcosystemWalletPermissions from "../assets/ecosystem-wallet-permissions.png";
-import FullLoginSystem from "../assets/full-login-system.png";
-import SingleLoginOption from "../assets/single-login-option.png";
+import { createMetadata } from "@doc";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
+# Batching transactions
 
 export const metadata = createMetadata({
 	image: {
-		title: "thirdweb Ecosystem Wallet",
+		title: "Batching transactions",
 		icon: "wallets",
 	},
-	title: "Integrating Partners - Ecosystem Wallet | thirdweb",
-	description: "Ecosystem Wallet - Own your own web3 identity stack",
+	title: "Batching transactions | thirdweb",
+	description: "How to batch transactions with smart accounts",
 });
 
-# Integrating with Partners
+Batching transactions allows sending multiple transactions in a single user operation. This can be useful to save on fees, reduce number of user confimations or to ensure that multiple transactions are executed atomically.
 
-One of the key features of ecosystem wallets is the ability to enable other developers to spin up in-app wallets on your behalf. All partners that spin up in-app wallets using your ecosystem wallet will access the same account for your end users. You can create partners in the [Ecosystem Wallets dashboard](https://thirdweb.com/team/~/~/ecosystem).
+A typical example is to do an approval and a transfer in a single userOperation. This way, the transfer will only happen if the approval is successful.
 
-Adding a new partner will create their unique Partner ID. They can use this Partner ID to integrate your wallet in a number of different ways:
+<Tabs defaultValue="react">
 
-### thirdweb SDK
+<TabsList>
+	<TabsTrigger value="react">React</TabsTrigger>
+	<TabsTrigger value="typescript">TypeScript</TabsTrigger>
+</TabsList>
 
-Partners can install thirdweb SDK and use the Partner ID you created for them to display your branded sign in flow. All login options in this sign in flow will create an in-app wallet that works across the ecosystem.
-
-#### Sign In UI
-
-The Sign In UI provides a complete flow with email, phone, passkey, and social sign in options. Available social login options are determined by the ecosystem creator. Any options displayed in the sign in flow will create an in-app wallet within the specified ecosystem.
-
-<DocImage src={FullLoginSystem} />
-
-<Steps>
-<Step title='Create a Wallet'>
-Partners can instantiate your ecosystem wallet by using your **Ecosystem ID**.
-
-```ts
-import { ecosystemWallet } from "thirdweb/wallets";
-
-// Create a wallet for a non-gated "Anyone" ecosystem
-const wallet = ecosystemWallet("ecosystem.your-ecosystem-id");
-```
-
-If you set your ecosystem wallet to Allowlist, your partners will also need to specify their unique **Partner ID** (available on the Ecosystem Wallet dashboard).
-
-```ts
-import { ecosystemWallet } from "thirdweb/wallets";
-
-// Create a wallet for "Allowlist" ecosystems restricted to partners
-const wallet = ecosystemWallet("ecosystem.your-ecosystem-id", {
-	partnerId: "...",
-});
-```
-
-</Step>
-
-<Step title='Add Ecosystem Wallet to Sign In'>
-Once a partner has instantiated your ecosystem wallet, they can add it to their Sign In UI.
+<TabsContent value="react">
 
 ```tsx
-import { ConnectButton } from "thirdweb/react";
+import { useActiveAccount, useSendBatchTransaction } from "thirdweb/react";
+import { approve, transferFrom } from "thirdweb/extensions/erc20";
 
-<ConnectButton
-	client={THIRDWEB_CLIENT}
-	wallets={[wallet]} // Pass a non-gated or restricted wallet to the ConnectButton
-	{...props}
-/>;
-```
+const smartAccount = useActiveAccount();
+const { mutate: sendBatchTransaction } = useSendBatchTransaction();
 
-</Step>
-
-</Steps>
-
-#### Branded Wallet Connector
-
-Partners that want to utilize your Ecosystem Wallet as an option to their existing sign in flow can integrate your wallet separately. In this case, only sign ins through your `ecosystem.your-ecosystem-id` will create in-app wallets within your ecosystem:
-
-<DocImage src={SingleLoginOption} />
-
-```tsx
-import { createWallet } from "thirdweb/wallets";
-
-<ConnectButton
-	client={THIRDWEB_CLIENT}
-	wallets={[
-		createWallet("ecosystem.your-ecosystem-id", {
-			partnerId: "...", // Pass an optional partner ID for restricted ecosystems
+const approveAndTransfer = async () => {
+	const transactions = [
+		approve({
+			contract,
+			spender: "0x...",
+			value: 100,
 		}),
-		createWallet("io.metamask"),
-	]}
-	{...props}
-/>;
+		transferFrom({
+			contract,
+			from: "0x...",
+			to: "0x...",
+			amount: 100,
+		}),
+	];
+	await sendBatchTransaction(transactions);
+};
 ```
 
-### WalletConnect (Coming Soon)
+</TabsContent>
+
+<TabsContent value="typescript">
+
+```tsx
+import { smartWallet } from "thirdweb/wallets";
+import { sendBatchTransaction } from "thirdweb";
+import { approve, transferFrom } from "thirdweb/extensions/erc20";
+
+const smartWallet = new smartWallet(config);
+const smartAccount = await smartWallet.connect({
+	client,
+	personalAccount,
+});
+
+const transactions = [
+	approve({
+		contract,
+		spender: "0x...",
+		value: 100,
+	}),
+	transferFrom({
+		contract,
+		from: "0x...",
+		to: "0x...",
+		amount: 100,
+	}),
+];
+
+await sendBatchTransaction({
+	transactions,
+	account: smartAccount,
+});
+```
+
+</TabsContent>
+
+</Tabs>
