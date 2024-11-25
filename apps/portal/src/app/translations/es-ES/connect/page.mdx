@@ -1,188 +1,103 @@
-import { createMetadata, ArticleIconCard, Callout } from "@doc";
-import {
-    ReactIcon,
-    TypeScriptIcon,
-    UnityIcon,
-    DotNetIcon,
-    ExternalLinkIcon,
-    UnrealEngineIcon
-} from "@/icons"
+import { DocImage, Callout, createMetadata } from "@doc";
+import EnclaveWalletCreation from "./assets/enclave-wallet-creation.png";
+import AppScoped from "./assets/app-scoped.svg";
+import EcosystemScoped from "./assets/ecosystem-scoped.svg";
 
 export const metadata = createMetadata({
 	image: {
-		title: "Guest Mode",
+		title: "In App wallet and Ecosystem Security",
 		icon: "wallets",
 	},
-	title: "Guest Mode",
+	title: "thirdweb Wallet Security",
 	description:
-		"Learn how to get users started in thirdweb wallets without requiring sign-in.",
+		"Learn how thirdweb protects your user's private keys across applications using nitro Enclaves",
 });
 
-# Guest Mode
+# thirdweb Wallet Security
 
-Sometimes users want to get started using your app without signing in. You can now give users an in-memory "guest account" that can then be converted into a standard account by linking another auth method.
+If you are looking for the previous security documentation around the shamir secret sharing model, please refer to the [In-App Wallet Security](/connect/wallet/security/legacy) page.
 
-## Logging in with Guest Mode
+## Wallet Creation
 
-In general, logging in with guest mode is the same as configuring any other login method in the platform of your choice. See the [login methods overview](/connect/wallet/sign-in-methods/overview) for more information on configuring your login options.
+When a user signs into an application using their email or social logins for the first time, a wallet is generated within a secure enclave on the server after verifying the user's legitimacy. The enclave provides a trusted execution environment, ensuring the wallet creation process is isolated and protected from external interference.
 
-### In App Wallet
+- The wallet and its corresponding private key are generated entirely within the enclave, never leaving its secure confines.
+- User authentication data is verified within the enclave, ensuring that only legitimate, authenticated users can initiate wallet creation.
 
-<div className="my-4 grid gap-2 md:grid-cols-2 lg:grid-cols-3">
-    <ArticleIconCard
-        title="TypeScript"
-        icon={TypeScriptIcon}
-        description="Guest Login for in-app wallets in TypeScript"
-        href="/typescript/v5/inAppWallet#connect-to-a-guest-account"
-    />
-    <ArticleIconCard
-        title="React"
-        icon={ReactIcon}
-        description="Guest Login for in-app wallets in React"
-        href="/react/v5/in-app-wallet/get-started#choose-authentication-methods"
-    />
-    {/* TODO: Link to react native getting started for in app wallet */}
-    <ArticleIconCard
-        title="React Native"
-        icon={ReactIcon}
-        description="Guest Login for in-app wallets in React Native"
-        href="/react/v5/in-app-wallet/get-started#choose-authentication-methods"
-    />
-	<ArticleIconCard
-        title=".NET"
-        icon={DotNetIcon}
-        description="Guest Login for in-app wallets in .NET"
-        href="/dotnet/wallets/providers/in-app-wallet#usage"
-    />
-    <ArticleIconCard
-        title="Unity"
-        icon={UnityIcon}
-        description="Guest Login for in-app wallets in Unity"
-        href="/unity/v5/wallets/in-app-wallet#login-with-guest---onboard-easily-link-other-accounts-later"
-    />
-   
-</div>
+<DocImage src={EnclaveWalletCreation} className="max-w-96" />
 
-### Ecosystem Wallet
+## Security Measures
 
-<div className="my-4 grid gap-2 md:grid-cols-2 lg:grid-cols-3">
-    <ArticleIconCard
-        title="TypeScript"
-        icon={TypeScriptIcon}
-        description="Guest Login for ecosystem wallets in TypeScript"
-        href="/typescript/v5/ecosystemWallet#example"
-    />
-    <ArticleIconCard
-        title="React"
-        icon={ReactIcon}
-        description="Guest Login for ecosystem wallets in React"
-        href="/react/v5/ecosystem-wallet/get-started#configuring-auth-strategies"
-    />
-    {/* TODO: Add react native specific getting started for ecosystem wallets */}
-    <ArticleIconCard
-        title="React Native"
-        icon={ReactIcon}
-        description="Guest Login for ecosystem wallets in React Native"
-        href="/react/v5/ecosystem-wallet/get-started#configuring-auth-strategies"
-    />
-     <ArticleIconCard
-        title=".NET"
-        icon={DotNetIcon}
-        description="Guest Login for ecosystem wallets in .NET"
-        href="/dotnet/wallets/providers/ecosystem-wallet#login-methods"
-    />
-    <ArticleIconCard
-        title="Unity"
-        icon={UnityIcon}
-        description="Guest Login for ecosystem wallets in Unity"
-        href="/unity/v5/wallets/ecosystem-wallet#login-with-guest---onboard-easily-link-other-accounts-later"
-    />
-</div>
+- The enclave's cryptographic properties ensure that even the server operators cannot access the contents or operations within the enclave.
+- The enclave provides a verifiable hash of the image of the code that is being run on the device, allowing anyone to verify the contents of the code.
+- The wallet's private key never exists in an unencrypted form outside of the enclave.
+- All sensitive operations, such as transaction signing, occur within the enclave, ensuring the wallet's security.
 
-## Making the Guest Wallet Permanent
+## Wallet Usage
 
-When your user is ready, link any other auth method so they can access their account in the future.
+### General Usage
 
-### In App Wallet
+- When users interact with their wallet via the the enclave, all communications are encrypted and only the legitimate user can access their wallet.
+- All traffic is encrypted with TLS and HSTS. Services are run in private VPCs on AWS and accessible only from a single entry point via our Cloudflare DNS.
+- Applications can [link multiple authentication methods](/connect/in-app-wallet/guides/link-multiple-profiles) to the same wallet. Any of these methods can be used to authenticate into the users wallet.
 
-Below are the guides for linking a new identity for in-app wallet on the various platforms:
+### Ecosystem Usage
 
-<div className="my-4 grid gap-2 md:grid-cols-2 lg:grid-cols-3">
-    <ArticleIconCard
-        title="TypeScript"
-        icon={TypeScriptIcon}
-        description="Link identites in-app wallets in TypeScript"
-        href="/typescript/v5/linkProfile"
-    />
-    <ArticleIconCard
-        title="React"
-        icon={ReactIcon}
-        description="Link identites in-app wallets in React"
-        href="/react/v5/useLinkProfile"
-    />
-    {/* TODO: Link to react native getting started for in app wallet */}
-    <ArticleIconCard
-        title="React Native"
-        icon={ReactIcon}
-        description="Link identites in-app wallets in React Native"
-        href="/react/v5/useLinkProfile"
-    />
-	<ArticleIconCard
-        title=".NET"
-        icon={DotNetIcon}
-        description="Link identites in-app wallets in .NET"
-        href="/dotnet/wallets/providers/in-app-wallet#unified-identity---account-linking"
-    />
-    <ArticleIconCard
-        title="Unity"
-        icon={UnityIcon}
-        description="Link identites in-app wallets in Unity"
-        href="/unity/v5/wallets/in-app-wallet#account-linking"
-    />
-</div>
+Ecosystem wallets are controlled by the ecosystem owner. Ecosystem owners are able to specify usage policies for their partners and developers which restricts what they can do with the wallet. Unlike the shamir secret sharing model, the enclave wallet model ensures that the private key is never reconstructed on the client. This ensures no-one can extract the private key from the client, including other developers in the ecosystem. Moreover, it also means that partners and developers must submit the request to the enclave which would be able to verify the request and block requests that are out of scope or denied by the ecosystem owner.  
 
-### Ecosystem Wallet
+## Scopes
 
-Below are the guides for linking a new identity for ecosystem wallet on the various platforms:
+### In App Wallets
 
-<div className="my-4 grid gap-2 md:grid-cols-2 lg:grid-cols-3">
-    <ArticleIconCard
-        title="TypeScript"
-        icon={TypeScriptIcon}
-        description="Configure login options for ecosystem wallets in TypeScript"
-        href="/typescript/v5/linkProfile"
-    />
-    <ArticleIconCard
-        title="React"
-        icon={ReactIcon}
-        description="Configure login options for ecosystem wallets in React"
-        href="/react/v5/useLinkProfile"
-    />
-    {/* TODO: Add react native specific getting started for ecosystem wallets */}
-    <ArticleIconCard
-        title="React Native"
-        icon={ReactIcon}
-        description="Configure login options for ecosystem wallets in React Native"
-        href="/react/v5/useLinkProfile"
-    />
-     <ArticleIconCard
-        title=".NET"
-        icon={DotNetIcon}
-        description="Connect ecosystem wallets in .NET"
-        href="/dotnet/wallets/providers/ecosystem-wallet#unified-identity---account-linking"
-    />
-    <ArticleIconCard
-        title="Unity"
-        icon={UnityIcon}
-        description="Configure login options for ecosystem wallets in Unity"
-        href="/unity/v5/wallets/ecosystem-wallet#account-linking"
-    />
-</div>
+In-App Wallets are scoped to applications per Client ID. If users use the same email to sign in to a different application using In-App Wallets, the application will manage an entirely different wallet.
 
-## Wrapping Up
+#### Benefits of single application scoped wallets
 
-Your user can now access this same wallet with their Google account. 
+- Each application has limited access only to wallets created through their application. It cannot manage wallets from other applications.
+- Users may only view tokens sent or purchased from your application.
+- To improve user experience, saved payment methods and KYC verification are only provided to thirdweb; applications cannot view this information.
 
-While it is not linked to any other identity, the lifetime of the guest wallet for any given user will last until they clear their browser storage.
+<DocImage src={AppScoped} />
 
-You can try out Guest Mode [on our playground.](https://playground.thirdweb.com/connect/sign-in/button)
+### Ecosystem Wallets
+
+Ecosystem Wallets are scoped to the ecosystem. If users use the same email to sign in to a different application using the same ecosystem, they will get the same wallet.
+
+#### Benefits of ecosystem scoped wallets
+
+- Applications can now share assets across various applications. This is useful if you're a brand powering multiple application and want your partners to take advantage of network effects.
+- Application owner has full control over what happens within each application. This is useful if you're a brand that wants to ensure that all applications in your ecosystem are following the same rules.
+
+<DocImage src={EcosystemScoped} />
+
+## Recoverability
+
+- Users can export their private key at any time. 
+
+- Users may recover their wallet from any device by authenticating or signing into an application to receive access to their wallet.
+
+- Thirdweb wallets support four categories of authentication: socials, custom authentication, external wallets, and email / phone authentication. If a user ever loses access to their authentication method:
+
+  1. **For socials and email / phone authentication,** users can utilize the recovery flow of their providers to regain access to their account.
+  2. **In the case of custom authentication,** the developer managing their authentication flow will be able to re-instate the users account upon successful verification.
+  3. Application providers **do not have direct access** to user accounts or private keys, as these remain secured within the enclave. The enclave's design ensures that only verified user requests can trigger wallet operations.
+
+- Users are able to link their authentication methods which will provide them multiple ways to access their account if they ever lose access to any one of their authentication method.
+
+## Security & privacy
+
+### TLS Encryption
+
+To increase security and privacy, private keys or wallet "seed phrases" are never stored or sent over a network. TLS encryption is used in transit for internal and external communications with thirdweb's back-end and databases. TLS encryption is also required for third-party vendors.
+
+### AES-256
+
+Data backups and storage are encrypted with AES-256.
+
+### GDPR & CCPA
+
+thirdweb complies to GDPR and CCPA compliance frameworks and deletes customer data per request within the required timeframe of each standard (30 days for GDPR and 45 for CCPA).
+
+### Audit and Bounty Program
+
+Halborn has audited our enclave wallet security architecture which we'll be releasing shortly, and there is an ongoing bounty program to ensure vulnerabilities are caught. [View the Letter of Attestation.](/pdfs/thirdweb_code_security_audit.pdf)
