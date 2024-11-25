@@ -1,106 +1,320 @@
-import { createMetadata, Callout, DocImage, Steps, Step } from "@doc";
-import DirectPaymentsFlow from "../../assets/direct-payments-flow.png";
+import {
+	createMetadata,
+	Callout,
+	DocImage,
+	InstallTabs,
+	Steps,
+	Step,
+} from "@doc";
+import OnrampStepOne from "../../assets/avax-to-usd.png";
 
 export const metadata = createMetadata({
 	image: {
-		title: "thirdweb Pay - Accept Direct Payments",
+		title: "thirdweb Pay - Custom Experience",
 		icon: "thirdweb",
 	},
-	title: "thirdweb Pay - Accept Direct Payments | thirdweb",
+	title: "thirdweb Pay - Buy With Fiat - Custom Experience | thirdweb",
 	description:
-		"Combine Pay and Engine to create a smooth point of sale experience on any chain",
+		"Learn how to build a custom onramp experience with thirdweb Pay.",
 });
 
-# Accept Direct Payments with Pay & Engine
+# Build a Custom Fiat Experience
 
-Learn how to accept fiat and crypto from your customers with Pay and trigger Engine actions, like minting NFTs or transferring tokens to user wallets.
+Learn how to enable your users to purchase your application’s token with any fiat payment method with our headless flow.
 
-### Requirements
+In this guide, we'll show you how to purchase 0.01 Base ETH from USD in Typescript.
 
-- [A thirdweb Client ID](https://portal.thirdweb.com/typescript/v5/client)
-- [An Engine Instance](https://thirdweb.com/team/~/~/engine)
+<Callout variant="info">
+	Our `PayEmbed` component handles the complexity of the process detailed below
+	and can be integrated in minutes. We encourage you to check out the [PayEmbed
+	guide here](/connect/pay/get-started#option-2-embed-pay).
+</Callout>
 
-### Purchase Flow Overview
-
-Before jumping in, it's important to understand the full system, from initial purchase to the eventual transfer of assets. This is a four step process (with an optional fifth):
-
-<DocImage src={DirectPaymentsFlow} />
-
-1. **User Initiates Purchase:** User sends specified funds (ETH, MATIC, USD, etc.) to your wallet via thirdweb Pay.
-   - Your wallet can be any business wallet you choose or your Engine backend wallet.
-   - Use the `purchaseData` field to pass any item data needed in the webhook.
-     E.g., `{ nftId: 1 }`.
-2. **Pay Processes Purchase:** thirdweb Pay processes the transaction and sends a [Purchase Complete webhook](/connect/pay/webhooks#purchase-complete) to your dapp’s server when the transaction is complete.
-3. **Your Server Calls Engine:** Your server processes the webhook and sends a contract call to the thirdweb Engine backend wallet to perform the item purchase.
-4. **Engine Executes the Transaction:** Engine backend wallet executes the transaction needed to deliver the token(s) to the user’s address.
-5. **(Optional) User Is Notified :** Your server confirms the completed Engine transaction and notifies the user.
-
-Now, let's get started.
+---
 
 <Steps>
-	<Step title="Set Up thirdweb Engine">
+<Step title='Install the Connect SDK'>
+<InstallTabs
+	npm="npm i thirdweb"
+	yarn="yarn install thirdweb"
+	pnpm="pnpm i thirdweb"
+/>
+<Step title='Get Your Client ID'>
 
-````
-	1. If you haven't already, log in and [deploy an Engine
-	instance](https://thirdweb.com/team/~/~/engine)
-
-	2. Create or import a backend wallet for Engine in [your Engine dashboard](https://thirdweb.com/team/~/~/engine).
-
-	3. Send the required funds to the backend wallet
-		* For example, if purchasing with Arb Nova USDC, then your backend wallet should hold this ERC20 token.
-		* If your backend wallet holds an ERC20 token, ensure to add a native token balance as well to cover gas costs. For example, for a transaction on Arbitrum Nova, your backend wallet should hold both Arb Nova USDC (for payment) and Arb Nova ETH (for gas).
-		* Your backend wallet should hold enough liquidity to handle any anticipated purchasing volume.
-
-	4. Make a plan to monitor and keep the float wallet topped up to avoid any issues with the service.
-</Step>
-<Step title="Integrate thirdweb Pay (Client)">
-	1. [Integrate thirdweb Pay](https://portal.thirdweb.com/connect/pay/build-a-custom-experience) on the client side to enable fiat and crypto payments.
-
-
-	2. Specify the required parameters for your Pay transaction.
-
-		```ts
-		const quote = await getBuyWithFiatQuote({
-			client: client, // thirdweb client
-			fromCurrencySymbol: "USD", // fiat currency symbol
-			toChainId: arbnova.id, // arbitrum nova chain id
-			toAmount: "100", // amount of token to buy
-			toTokenAddress: USDC_TOKEN_ADDRESS, // address of payment token
-			fromAddress: "<USERS_WALLET_ADDRESS>",
-			toAddress: "<YOUR_WALLET_ADDRESS>",
-				purchaseData: {
-					nftId: 1
-				}
-			});
-		```
-
-		|Parameter|Type|Description|
-		|----|--|--|
-		|fromCurrencySymbol|`string`|The fiat currency symbol you'd like to accept (currently limited to USD and EUR) |
-		|toChainId|`string`|[Chain ID](https://thirdweb.com/chainlist) for the destination token.|
-		|toTokenAddress|`string`|Address of the destination token.|
-		|toAmount|`string`|The price of the asset denominated in your desination token.|
-		|fromAddress|`string`|The user's wallet address.|
-		|toAddress|`string`|The wallet you'd like funds to be sent to. This can be your business wallet or an Engine backend wallet. |
-		|purchaseData|`Object`|Any details you need to pass in order to track your transaction. If this is a secondary sale, you may want to include details like `{ nftId: 1, orderId: 1 }` |
-````
+Log in to the [thirdweb dashboard](https://thirdweb.com/team/~/~/projects). Click on Create New > Project to get your **Client ID**. You'll need your Client ID to interact with the Connect SDK.
 
 </Step>
-  <Step title="Integrate thirdweb Pay (Server)">
-		1. Log in & create a “Purchase Complete” webhook in your Team > Connect > Pay > Webhooks page.
-		2. The [Pay webhook POST response](/connect/pay/webhooks#purchase-complete) will include the BuyWithCryptoStatus or BuyWithFiatStatus in the body.
-			* This will also include the purchaseData you previously passed (metadata identifying the customer information, etc.).
-			* A request will be sent on every status change.
-		3. Listen for [completed purchase statuses](https://portal.thirdweb.com/connect/pay/build-a-custom-experience#Poll%20for%20Transaction%20Status). Note that if this is a two-step BuyWithFiat transaction (onramp, then swap), you should also listen for `CRYPTO_SWAP_COMPLETED`
-		4. When a purchase is completed, determine the purchaser, order and validate the amounts.
-			- The fromAddress in the status will show purchasing address
-			- The purchaseData will contain more information you previously for the purchase details
-			- Validate the information. For example, 100 USDC was sent to your wallet.
-		5. Send a contract call to Engine for the float wallet to purchase the item
-			- For example, send a transaction to the float wallet for `mintTo(fromAddress)`
-			- For secondary purchases, like a marketplace direct listing, you can use the appropriate Engine endpoint, passing the ultimate recipient of the NFT as the buyer
-		6. Confirm the purchase was successful.
-  </Step>
+</Step>
+<Step title='Get a “Buy with Fiat” quote'>
+Buying with fiat can require one or two steps depending on your destination token:
+
+If the destination token __can__ be bought directly with fiat, your users can onramp directly to their destination token.
+
+If the destination token __can not__ be bought directly with fiat, your users will need to onramp to an intermediate token, then convert the onramp token to the destination token.
+
+For example, when Buying Base ETH:
+
+1. Users will receive Avalance AVAX ( native token ) in exchange for USD
+2. Users will be prompted to convert Avalanche AVAX to Base ETH
+
+<DocImage src={OnrampStepOne} />
+
+This process requires your user's wallet address. Refer to [this guide](https://portal.thirdweb.com/typescript/v5/connecting-wallets) to learn how to connect a wallet.
+
+```tsx
+import { getBuyWithFiatQuote } from "thirdweb/pay";
+import { NATIVE_TOKEN_ADDRESS } from "thirdweb";
+import { base } from "thirdweb/chains";
+
+// create a thirdweb client
+const client = createThirdwebClient({
+	clientId: "<your_client_id>",
+});
+
+// Get a quote for buying 0.01 Base ETH with USD
+const quote = await getBuyWithFiatQuote({
+	client: client, // thirdweb client
+	fromCurrencySymbol: "USD", // fiat currency symbol
+	toChainId: base.id, // base chain id
+	toAmount: "0.01", // amount of token to buy
+	toTokenAddress: NATIVE_TOKEN_ADDRESS, // native token
+	toAddress: "0x...", // user's wallet address
+});
+
+// display quote information to user
+console.log(quote.fromCurrencyWithFees);
+console.log(quote.processingFees);
+console.log(quote.onRampToken);
+console.log(quote.toToken);
+console.log(quote.estimatedDurationSeconds);
+// etc...
+```
+
+The `quote` object contains detailed transaction information including the estimated time, processing fees, amount of fiat currency required, and more that you can display in your application.
+
+</Step>
+<Step title='Check for a Buy With Crypto Step'>
+The `quote` object contains `quote.onRampToken` and `quote.toToken` objects containing intermediate and detination token information.
+
+If `quote.onRampToken` is not the same as `quote.toToken`, then your users will need to onramp to intermediary token before arriving at their destination token.
+
+You can use `isSwapRequiredPostOnramp` to check this
+
+```tsx
+import { isSwapRequiredPostOnramp } from "thirdweb/pay";
+
+const hasTwoSteps = isSwapRequiredPostOnramp(quote);
+
+if (hasTwoSteps) {
+	// display the two steps to the user
+}
+```
+
+</Step>
+<Step title='Display the Onramp Experience'>
+Once you have a `quote` from `getBuyWithFiatQuote`, you can open a new tab with `quote.onRampLink` to show the onramp experience. This onramp experience handles all regulatory requirements, know your customer (KYC) verifications, and sanctions screening.
+
+After they've KYC'd (if required), customers have the option of saving payment methods, KYC data, and wallet information in the onramp, which makes the returning onramp experience much faster.
+
+Your users will be able to purchase the `quote.onRampToken` with the specified fiat currency.
+
+```ts
+window.open(quote.onRampLink, "_blank");
+```
+
+</Step>
+<Step title='Poll for Transaction Status'>
+When you open the `quote.onRampLink` in a new tab, you can begin polling for the onramp transaction status in your app by calling `getBuyWithFiatStatus`.
+
+`getBuyWithFiatStatus` requires an `intentId` which you can get from `quote` object.
+
+`getBuyWithFiatStatus` requires passing an `intentId` which you can get from `quote` object.
+
+There are a number of transactions statuses:
+
+```tsx
+// Keep calling the below code at some regular intervals to poll the status
+
+const fiatStatus = await getBuyWithFiatStatus({
+	client: client, // thirdweb client
+	intentId: quote.intentId, // pass intentId from quote
+});
+
+if (fiatStatus.status === "NOT_FOUND") {
+	// invalid intentId
+	// Show error in your page
+}
+
+if (fiatStatus.status === "NONE") {
+	// No information available yet
+	// Show "loading" status on your page
+	// keep polling
+}
+
+if (fiatStatus.status === "PENDING_PAYMENT") {
+	// Payment is in progress in the on-ramp provider
+	// Show "loading" status on your page
+	// keep polling
+}
+
+if (fiatStatus.status === "PENDING_ON_RAMP_TRANSFER") {
+	// payment is done, on-ramp process has not started
+	// show "loading" status on your page
+	// keep polling
+}
+
+if (fiatStatus.status === "ON_RAMP_TRANSFER_IN_PROGRESS") {
+	// on-ramp provider is doing on-ramp with fiat currency
+	// show "loading" status on your page
+	// keep polling
+}
+
+if (fiatStatus.status === "ON_RAMP_TRANSFER_FAILED") {
+	// on-ramp provider failed to do onramp
+	// show error in your UI
+	// STOP polling
+}
+
+if (fiatStatus.status === "ON_RAMP_TRANSFER_COMPLETED") {
+	// if only on-ramp is required - process is done!
+	if (!hasTwoSteps) {
+		// show "success"
+		// Stop polling
+		// That's it!
+	} else {
+		// Wait for "CRYPTO_SWAP_REQUIRED" state to convert tokens
+		// Show "loading" status on your page
+		// Stop polling
+	}
+}
+
+if (fiatStatus.status === "CRYPTO_SWAP_REQUIRED") {
+	// go to step 5
+	// Show UI for Buy with Crypto quote.onRampToken to quote.toToken
+	// Stop polling
+}
+```
+
+</Step>
+<Step title='Get a Buy With Crypto Quote (Optional)'>
+This step is only relevant when a crypto-to-crypto purchase is required after perfmorming an onramp to an intermediary token.
+
+In this case, you can use `getPostOnRampQuote` to get a quote to convert the intermediary token to the destination token.
+
+```tsx
+// when fiatStatus.status === "CRYPTO_SWAP_REQUIRED"
+// and hasTwoStep === true
+
+const swapQuote = await getPostOnRampQuote({
+	client: client,
+	buyWithFiatStatus: fiatStatus,
+});
+
+if (!swapQuote) {
+	// invalid fiatStatus status
+} else {
+	// Go to step 6 to kick off the "Swap" flow
+}
+```
+
+</Step>
+<Step title='Execute Buy With Crypto'>
+Executing Buy With Crypto may involve either a single step or 2 steps
+
+If your source token is an ERC-20 token, an approval step is required before executing the Buy With Crypto transaction.
+
+You can check if approval is required by checking `quote.approval`
+
+```tsx
+import { sendTransaction, waitForReceipt } from "thirdweb";
+
+const account = wallet.getAccount();
+
+// If approval is required, send the approval transaction
+// show a button to user to request approval and send the transaction on click
+if (quote.approval) {
+	// request spending tokens from wallet
+	const approveTxResult = await sendTransaction({
+		transaction: quote.approval, // approval transaction
+		account: account, // account from user's connected wallet
+	});
+
+	await waitForReceipt(approveTxResult);
+}
+
+// The above step may result in error if user rejects or transaction fails
+// If it results in error, it needs to be done again until its successful
+
+// Once the approval is done, you can send the buyWithCrypto transaction
+// show a button to user to request sending buyWithCrypto transaction and send the transaction on click
+const buyWithCryptoTxResult = await sendTransaction({
+	transaction: quote.transactionRequest,
+	account: account,
+});
+
+await waitForReceipt(buyWithCryptoTxResult);
+
+// Save the buy with crypto transaction hash for polling the status as mentioned in step 7
+const buyWithCryptoTxHash = buyWithCryptoTxResult.transactionHash;
+```
+
+</Step>
+<Step title='Poll for Buy With Crypto Status'>
+Once you've initiated your Buy With Crypto transaction, you'll want to track the status. You can notify users throughout this journey by checking for the following statuses:
+
+```tsx
+import { getBuyWithCryptoStatus } from 'thirdweb/pay'
+
+// Keep calling the below code at regular intervals if the status is in a pending state
+
+const swapStatus = await getBuyWithCryptoStatus({
+   client: client,
+   transactionHash: swapTxHash,
+}});
+
+if (swapStatus.status === "NOT_FOUND") {
+// invalid swap tx
+// Show error in your page
+// Stop polling
+}
+
+if (swapStatus.status === "NONE") {
+// No information available yet
+// show "loading" in UI
+// Keep polling
+}
+
+if (swapStatus.status === "FAILED") {
+// swap failed
+// show "error" in UI - show a retry option in UI
+// Stop polling
+}
+
+if (swapStatus.status === "COMPLETED") {
+// swap completed
+// show "success" in UI
+// Stop polling
+}
+
+if (swapStatus.status === "PENDING") {
+// swap is in progress
+// show "loading" in UI
+// Keep polling
+}
+
+```
+
+</Step>
 </Steps>
 
-Once you've completed all of these steps, you'll be ready to offer a great purchase UX for your users.
+---
+
+### Build a Custom Experience in React
+
+If you are using React, we provide Hooks for each of the functions mentioned above:
+
+| React Hook           | Typescript           |
+| :------------------- | :------------------- |
+| useBuyWithFiatQuote  | getBuyWithFiatQuote  |
+| usePostOnrampQuote   | getPostOnrampQuote   |
+| useBuyWithFiatStatus | getBuyWithFiatStatus |
