@@ -1,126 +1,94 @@
-import { Callout } from "@doc";
-import { createMetadata, ArticleIconCard } from "@doc";
+import { Callout, DocImage, createMetadata, Steps, Step } from "@doc";
+import CreateEcosystemWallet from "../assets/create-ecosystem-wallet.png";
+import EcosystemWalletPermissions from "../assets/ecosystem-wallet-permissions.png";
+import FullLoginSystem from "../assets/full-login-system.png";
+import SingleLoginOption from "../assets/single-login-option.png";
 
 export const metadata = createMetadata({
 	image: {
-		title: "Pregenerate Wallets",
+		title: "thirdweb Ecosystem Wallet",
 		icon: "wallets",
 	},
-	title: "Pregenerate Wallets | thirdweb",
-	description: "Learn how to pregenerate wallets for improved user onboarding",
+	title: "Integrating Partners - Ecosystem Wallet | thirdweb",
+	description: "Ecosystem Wallet - Own your own web3 identity stack",
 });
 
-# Pregenerate Wallets
+# Integrating with Partners
 
-## What is Wallet Pregeneration?
+One of the key features of ecosystem wallets is the ability to enable other developers to spin up in-app wallets on your behalf. All partners that spin up in-app wallets using your ecosystem wallet will access the same account for your end users. You can create partners in the [Ecosystem Wallets dashboard](https://thirdweb.com/team/~/~/ecosystem).
 
-Wallet pregeneration is a technique where you create wallets for users before they actually sign up or authenticate. This allows you to:
+Adding a new partner will create their unique Partner ID. They can use this Partner ID to integrate your wallet in a number of different ways:
 
-1. Pre assign wallets to users before they sign up
-2. Reduce the time users spend waiting during the onboarding process
-3. Pre-fund wallets with tokens or NFTs before users claim them
-4. Create smoother user experiences for gaming and other applications
+### thirdweb SDK
 
-## Why Use Wallet Pregeneration?
+Partners can install thirdweb SDK and use the Partner ID you created for them to display your branded sign in flow. All login options in this sign in flow will create an in-app wallet that works across the ecosystem.
 
-### Pre-funding Capability
+#### Sign In UI
 
-You can distribute assets to wallets before users claim them, enabling:
+The Sign In UI provides a complete flow with email, phone, passkey, and social sign in options. Available social login options are determined by the ecosystem creator. Any options displayed in the sign in flow will create an in-app wallet within the specified ecosystem.
 
-- Pre-loaded game assets
-- Welcome bonus tokens
-- Promotional NFTs
-- Airdrops
+<DocImage src={FullLoginSystem} />
 
-### Better User Experience
+<Steps>
+<Step title='Create a Wallet'>
+Partners can instantiate your ecosystem wallet by using your **Ecosystem ID**.
 
-- Users don't have to wait for wallet to be created during signup
-- Reduced failed wallet creation due to network issues
+```ts
+import { ecosystemWallet } from "thirdweb/wallets";
 
-To pregenerate an in-app or ecosystem wallet wallet, you can make a `POST` request to the following endpoint:
-
-```
-https://in-app-wallet.thirdweb.com/api/v1/pregenerate
+// Create a wallet for a non-gated "Anyone" ecosystem
+const wallet = ecosystemWallet("ecosystem.your-ecosystem-id");
 ```
 
-## Request Body
+If you set your ecosystem wallet to Allowlist, your partners will also need to specify their unique **Partner ID** (available on the Ecosystem Wallet dashboard).
 
-The request body should be a JSON object with the following parameters:
+```ts
+import { ecosystemWallet } from "thirdweb/wallets";
 
-- `strategy`: The strategy for wallet generation
-- `email` or `phone` or `userId`: The user identifier associated with the wallet to be generated
-
-### Email based wallets
-
-```
-{ strategy: "email", email: "user@example.com" }
+// Create a wallet for "Allowlist" ecosystems restricted to partners
+const wallet = ecosystemWallet("ecosystem.your-ecosystem-id", {
+	partnerId: "...",
+});
 ```
 
-When the user logs in with any method associated with that email (including google, facebook, discord auth), they will get access to the same pregenerated wallet.
+</Step>
 
-### Phone based wallets
+<Step title='Add Ecosystem Wallet to Sign In'>
+Once a partner has instantiated your ecosystem wallet, they can add it to their Sign In UI.
 
-```
-{ strategy: "phone", phone: "+1321123321" }
-```
+```tsx
+import { ConnectButton } from "thirdweb/react";
 
-### Custom user id based wallets
-
-```
-{ strategy: "custom_auth_endpoint", userId: "some_user_id" }
-```
-
-{/_ TODO: update link when custom auth documentation has been updated _/}
-Use this when [bringing your own authentication method](/connect/in-app-wallet/custom-auth/configuration). When the user logs in, if the user ids you provide from the auth endpoint match, they will get access to the same pregenerated wallet.
-
-## Headers
-
-You need to include the following headers:
-
-- `Content-Type`: Must be set to `application/json`
-- `x-secret-key`: Your secret key for authentication
-- `x-ecosystem-id` (optional): Your ecosystem ID
-- `x-ecosystem-partner-id` (optional): Your ecosystem partner ID
-
-## Example curl Command
-
-Here's an example curl command to pregenerate a thirdweb wallet for the user `user@example.com`:
-
-```bash
-curl -X POST 'https://embedded-wallet.thirdweb.com/api/v1/pregenerate' \
-  -H 'x-ecosystem-id: ecosystem.example-eco-123' \
-  -H 'x-ecosystem-partner-id: 1415d24e-c7b0-4fce-846e-740841ef2c32' \
-  -H 'x-secret-key: 9f8e7d6c5b4a3f2e1d0c9b8a7ffge434b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8e7' \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "strategy": "email",
-    "email": "user@example.com"
-  }'
+<ConnectButton
+	client={THIRDWEB_CLIENT}
+	wallets={[wallet]} // Pass a non-gated or restricted wallet to the ConnectButton
+	{...props}
+/>;
 ```
 
-Replace the header values with your actual client ID, ecosystem ID, and secret key.
+</Step>
 
-<Callout variant='info' title='Pregeneration for ecosystems'>
-For ecosystem wallets, the secret key have to be from the same account as the ecosystem owner. If this is an issue, please reach out to us.
-</Callout>
+</Steps>
 
-## Response Format
+#### Branded Wallet Connector
 
-A successful API call returns a JSON object in the following format:
+Partners that want to utilize your Ecosystem Wallet as an option to their existing sign in flow can integrate your wallet separately. In this case, only sign ins through your `ecosystem.your-ecosystem-id` will create in-app wallets within your ecosystem:
 
-```json
-{
-  "wallet": {
-      "address": "string",
-      "createdAt": "string",
-  }
-}
+<DocImage src={SingleLoginOption} />
+
+```tsx
+import { createWallet } from "thirdweb/wallets";
+
+<ConnectButton
+	client={THIRDWEB_CLIENT}
+	wallets={[
+		createWallet("ecosystem.your-ecosystem-id", {
+			partnerId: "...", // Pass an optional partner ID for restricted ecosystems
+		}),
+		createWallet("io.metamask"),
+	]}
+	{...props}
+/>;
 ```
 
-## What's Next
-
-Pre-generating is independent and doesn't change the user's experience. 
-
-Your users can continue to login as per usual. When they do, they will be assigned the pregenerated wallet.
-
-For more information on signing in, see [Sign In](/connect/wallet/sign-in-methods/overview).
+### WalletConnect (Coming Soon)
