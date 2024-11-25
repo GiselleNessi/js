@@ -2,8 +2,8 @@ project_id: 738173
 api_token: ed99da432111d10a870c1d55a360b9ac096f9298ef1f40d493e7eb9fedc1bf19c415604250fa334f
 
 files:
-  - source: "/apps/portal/src/app/connect/**/*.mdx"
-    translation: "/apps/portal/translations/%locale%/connect/%original_file_name%"
+  - source: "apps/portal/src/app/connect/page.mdx"
+    translation: "/apps/portal/src/app/translations/%locale%/connect/%original_file_name%"
     ignore: 
      - "/apps/portal/src/app/connect/in-app-wallet/guides/connect-users/page.mdx"
      - "/apps/portal/src/app/connect/auth/page.mdx"

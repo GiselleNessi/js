@@ -48,6 +48,10 @@ const withMDX = createMDX({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   pageExtensions: ["mdx", "tsx", "ts"],
+  i18n: {
+    locales: ["es", "en"], // Supported languages
+    defaultLocale: "es", // Default language
+  },
   redirects,
   webpack: (config) => {
     config.externals.push("pino-pretty", "lokijs", "encoding");
