@@ -1,96 +1,58 @@
-import { ArticleIconCard, Callout, DocImage, createMetadata, FeatureCard } from "@doc";
-import { WalletsConnectIcon } from "@/icons"
-import customModal from "./assets/custom-modals.png";
-import EcosystemWalletOverview from "./assets/ecosystem-wallet.png";
+import { Callout, DocImage, createMetadata, Step, Steps } from "@doc";
+import ManageWallet from './manage-wallet.png'
+import ExportKey from './export-key.png'
+import ConfirmReveal from './confirm-reveal.png'
+import ExportedKey from './exported-key.png'
 
 export const metadata = createMetadata({
 	image: {
-		title: "thirdweb Wallets",
+		title: "Export private key of thirdweb Wallet",
 		icon: "wallets",
 	},
-	title: "thirdweb Wallets | thirdweb",
+	title: "Export private key | thirdweb",
 	description:
-		"thirdweb wallets provide a comprehensive toolkit for connecting users to applications and games. Ofrecemos una manera de permitir a los usuarios iniciar sesión como desee. Ya sea conectando una billetera externa, creando una experiencia de inicio de sesión sin fricciones para nuevos usuarios o permitiéndote poseer tu identidad en la pila de Web3, tenemos una solución para ti.",
+		"Learn how to export private keys for thirdweb wallets",
 });
 
-# Descripción General
+# Export Private Key
 
-Un flujo de registro flexible que se adapte a diferentes preferencias es fundamental al incorporar usuarios. thirdweb ofrece múltiples soluciones de billetera para satisfacer diversas necesidades de integración:
+Learn how to export the private key for a thirdweb wallet using the Connect modal. 
 
-1. **Billeteras externas** - Conexión tradicional con más de 350 proveedores
-2. **Billetera In-App** - Incorporación sin fricciones con opciones de correo electrónico, redes sociales y claves de acceso
-3. **Billetera de Ecosistema** - Servicio de billetera personalizada con marca propia para autenticación entre aplicaciones
+<Callout variant="info" title="Headless private key export">
+    Note that we don't allow exporting private key headlessly today. This is to ensure the security of the users assets.
+</Callout>
 
-<DocImage src={EcosystemWalletOverview} />
+<Steps>
 
-### Funcionalidades
+<Step title="Login">
+    Login to your wallet on the application.
+  </Step>
 
-<div
-	className="my-4 grid gap-2 md:grid-cols-2 lg:grid-cols-2 "
->
-<FeatureCard
-	title="Soporte de Billeteras"
-	description="Más de 350 proveedores de billeteras compatibles"
-	iconUrl="/icons/feature-cards/wallet.svg"
-/>
-<FeatureCard
-	title="Rampa de Entrada Fiat"
-	description="Habilita opciones de compra directamente en el modal"
-	iconUrl="/icons/feature-cards/fiat-ramp.svg"
-/>
-<FeatureCard
-	title="Incorporación sin Fricciones"
-	description="Opciones de correo electrónico, teléfono, redes sociales y claves de acceso"
-	iconUrl="/icons/feature-cards/fingerprint.svg"
-/>
-<FeatureCard
-	title="Personalizable"
-	description="Alinea la marca de tu aplicación"
-	iconUrl="/icons/feature-cards/customize.svg"
-/>
-<FeatureCard
-	title="Sin Gas"
-	description="Habilita transacciones gratuitas con cuentas inteligentes"
-	iconUrl="/icons/feature-cards/gasless.svg"
-/>
-<FeatureCard
-	title="Localización"
-	description="Soporte para múltiples idiomas"
-	iconUrl="/icons/feature-cards/localization.svg"
-/>
-<FeatureCard
-	title="Soporte Cross-Chain"
-	description="Permite a los usuarios finales ver activos, saldos y actividades para aplicaciones y juegos a través de cualquier cadena compatible con EVM"
-	iconUrl="/icons/feature-cards/compatibility.svg"
-/>
-<FeatureCard
-	title="Atribución de Usuarios y Análisis"
-	description="Desbloquea análisis para desarrolladores y la actividad de usuarios finales en tu ecosistema"
-	iconUrl="/icons/feature-cards/compatibility.svg"
-/>
+<Step title="Manage">
+    Select "Manage Wallet".
+    <DocImage src={ManageWallet} />
+  </Step>
 
-</div>
+<Step title="Export">
+    Choose "Export Private Key" and confirm the action to reveal the private key.
+    <DocImage src={ExportKey} />
+  </Step>
 
-### Soluciones
+<Step title="Confirm">
+	Confirm you want to reveal your private key.
+    <Callout variant="warning" title="Secure Private Keys">
+      Revealing private keys can compromise your assets and security. Keep them safe and confidential at all times.
+    </Callout>
+    <DocImage src={ConfirmReveal} />
+  </Step>
 
-| SOLUCIÓN                | MEJOR PARA                                                                                | PRECIOS                                                              |
-| ----------------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| Billetera externa       | Aplicaciones que necesitan integración tradicional de cartera EOA                         | Gratis                                                               |
-| Billetera In-App        | Aplicaciones convencionales que requieren una incorporación sin fricciones                | [Free up to 1,000 MAW, then $0.02/MAW](https://thirdweb.com/pricing) |
-| Billetera de Ecosistema | Organizaciones que están construyendo redes de billeteras personalizadas con marca propia | [$250/mo](https://thirdweb.com/pricing)                              |
+<Step title="Reveal">
+    Copy the exported private key directly from the modal.
+    <DocImage src={ExportedKey} />
+  </Step>
 
-### Casos de Uso
+</Steps>
 
-- **Gaming y Entretenimiento** - Cuentas multijuego y transacciones sin gas
-- **Empresas y Programas de Lealtad** - Autenticación personalizada y atribución de usuarios
-- **DeFi & NFT** - Conexión con billeteras tradicionales y rampas de entrada de fiat
-- **Chain Ecosystems** - Cuentas unificadas a través de aplicaciones en cadena
-
-<ArticleIconCard
-	icon={WalletsConnectIcon}
-	title="Empezando"
-	description="Consulta nuestra guía de inicio para comenzar rápidamente con las billeteras de thirdweb en las distintas plataformas compatibles."
-	href="/wallet/get-started/overview"
-/>
-
-<DocImage src={customModal} />
+<Callout variant="info" title="Advanced Configuration">
+    As an advanced option, to hide the export private key option from the modal, set the `hidePrivateKeyOption` to `true` when initializing the typescript or react SDK.
+</Callout>
