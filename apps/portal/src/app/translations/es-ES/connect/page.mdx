@@ -1,104 +1,100 @@
-import {
-	Tabs,
-	TabsList,
-	TabsTrigger,
-	TabsContent,
-	ArticleIconCard,
-	Grid,
-	createMetadata,
-} from "@doc";
-import { ReactIcon, UnityIcon } from "@/icons";
-import WalletIcon from "../../images/wallet.png";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { createMetadata } from "@doc";
 
 export const metadata = createMetadata({
 	image: {
-		title: "Interact with the blockchain with In-App Wallet",
+		title: "Interact with Accounts",
 		icon: "wallets",
 	},
-	title: "Interact with the blockchain | thirdweb In-App Wallet",
+	title: "Interact with Accounts",
 	description:
-		"One connected, in-app wallets can be used alongside the Contract SDK to interact with the blockchain",
+		"Learn how to interact with the in-app wallet using Typescript or React Hooks",
 });
 
-# Interact with the blockchain
+# Interact with users
 
-One connected, in-app wallets can be used alongside the [Contract SDK](/contracts/interact/overview) to interact with the blockchain.
+Once connected, you can interact with user accounts using the `thirdweb/wallets` specific methods.
 
-## Initialize the SDK With Your Wallet
+## Get the user email
+
+```typescript
+import { getUserEmail } from "thirdweb/wallets/in-app";
+
+const email = await getUserEmail({ client });
+console.log("user email", email);
+```
+
+## Get the user's account
 
 <Tabs defaultValue="react">
 
 <TabsList>
-	<TabsTrigger value="react">React & React Native </TabsTrigger>
-	<TabsTrigger value="typescript">Other Frameworks</TabsTrigger>
+	<TabsTrigger value="react">React</TabsTrigger>
+	<TabsTrigger value="typecsript">TypeScript</TabsTrigger>
 </TabsList>
 
 <TabsContent value="react">
-The `ThirdwebProvider` handles maintaining the connection state, and allows using all the hooks in the SDK to interact with the blockchain as the connected user.
 
-Here's an example using the `TransactionButton` component to claim an NFT on a smart contract:
+```typescript
+import { useActiveAccount } from "thirdweb/react";
 
-```tsx
-export default function App() {
-	const account = useActiveAccount();
-
-	return (
-		<div>
-			<TransactionButton
-				transaction={() => {
-					if (!account) {
-						return alert("Please connect your wallet");
-					}
-					return claimTo({ contract, to: account.address, quantity: 1 });
-				}}
-			>
-				Claim NFT
-			</TransactionButton>
-		</div>
-	);
-}
+const account = useActiveAccount();
 ```
 
 </TabsContent>
 
-<TabsContent value="typescript">
-You can pass the connected account to any of the transaction actions:
-
+<TabsContent value="typecsript">
 ```typescript
-import { createThirdwebClient, getContract, sendTransaction } from "thirdweb";
-import { sepolia } from "thirdweb/chains";
-import { inAppWallet } from "thirdweb/wallets";
-
-const wallet = inAppWallet();
-const account = await wallet.connect({
-	client,
-	strategy: "google",
-});
-
-const contract = getContract({ client, address: "0x..." });
-
-const transaction = claimTo({
-	contract,
-	to: wallet.account.address,
-	quantity: 1,
-});
-await sendTransaction({ transaction, account });
+const account = await inAppWallet.getAccount();
 ```
 
 </TabsContent>
 
 </Tabs>
 
-## Full Reference
+## Get the user's wallet address
 
-View everything you can do in the Connect SDK once you have connected your wallet:
+<Tabs defaultValue="react">
 
-<Grid className="lg:grid-cols-2">
+<TabsList>
+	<TabsTrigger value="react">React</TabsTrigger>
+	<TabsTrigger value="typecsript">TypeScript</TabsTrigger>
+</TabsList>
 
-<ArticleIconCard
-	href={"/typescript/v5"}
-	image={WalletIcon}
-	title="Connect SDK reference"
-/>
+<TabsContent value="react">
 
-</Grid>
+```typescript
+import { useActiveAccount } from "thirdweb/react";
+
+const account = useActiveAccount();
+console.log("wallet address", account.address);
+```
+
+</TabsContent>
+
+<TabsContent value="typecsript">
+
+```typescript
+const account = inAppWallet.getAccount();
+const address = account.address;
+```
+
+</TabsContent>
+
+</Tabs>
+
+## Get wallet balance
+
+```typescript
+await getWalletBalance({
+	client,
+	chain,
+	address: account.address,
+});
+```
+
+## Sign a message
+
+```typescript
+await inAppWallet.sign("Hello World!");
+```
