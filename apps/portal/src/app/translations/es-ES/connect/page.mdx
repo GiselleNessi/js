@@ -1,33 +1,65 @@
-import { createMetadata } from "@doc";
+import { SDKCard, Grid, DocImage, createMetadata, Step, Steps, InstallTabs, OpenSourceCard } from "@doc";
 
-# FAQs
+# Biconomy
 
-export const metadata = createMetadata({
-	image: {
-		title: "FAQs about Account abstraction",
-		icon: "wallets",
-	},
-	title: "FAQs | thirdweb",
-	description:
-		"Find answers to frequently asked questions about account abstraction and smart accounts.",
-});
+Learn to setup gasless transactions using TransactionButton and Biconomy's gasless relayers. 
 
-### Can users have the same smart account contract address on all EVM chains?
+This guide assumes you have already installed Connect SDK into your application. If you have not, please refer to the [quickstart guide](/connect/quickstart). 
 
-Yes, by using our Account factory contracts, it is possible to enable predictable addresses per user across all EVM chains. To do this, ensure that your **account factory** has the same address on every chain. You can accomplish this from the dashboard by enabling "Deterministic address" when deploying the account factory.
+<Steps>
 
-### Can I sign transactions with my smart account?
+<Step title="API Id & Key">
 
-Smart contract wallets cannot sign transactions themselves, only the 'owners' of the smart account can. The way to achieve this is to follow [EIP-1271](https://eips.ethereum.org/EIPS/eip-1271) which requires to ask the smart contract wallet if the recovered address is indeed an owner.
+Obtain an API Id and Key using Biconomy. For steps on how to obtain the API Id and Key, refer to the [Biconomy documentation](https://docs-gasless.biconomy.io/guides/biconomy-dashboard).
 
-### Can I use In-App Wallets with account abstraction?
+</Step>
 
-Yes! In-App Wallets with account abstraction is a powerful combination that allows users to sign in using their email, social media accounts, or custom JWT method (In-App Wallet), and provides a completely gasless user experience.
+<Step title="Forwarder Address">
 
-### Are smart accounts custodial or non-custodial?
+Obtain a Forwarder Address using Biconomy for the specified network. The full list of forwarder addresses can be found on [Biconomy documentation](https://docs-gasless.biconomy.io/misc/contract-addresses)
 
-Smart accounts are non-custodial. It uses smart contracts to operate and manage assets via an admin wallet that signs on behalf of the smart account
+</Step>
 
-### Is setting a trusted forwarder necessary for account abstraction?
+````
+<Step title="Add transaction button">
+Add a transaction button for the method you want to sponsor funds for. Pass in the `apiId` and `apiKey` obtained earlier from Biconomy's dashboard. 
 
-No, There is no need to use a trusted forwarder when implementing account abstraction for your contract.
+```jsx
+function Example() {
+return (
+    <TransactionButton
+    transaction={() => {
+        // Create a transaction object and return it
+        const tx = prepareContractCall({
+        contract,
+        method: "mint",
+        params: [address, amount],
+        });
+        return tx;
+    }}
+    onTransactionSent={(result) => {
+        console.log("Transaction submitted", result.transactionHash);
+    }}
+    onTransactionConfirmed={(receipt) => {
+        console.log("Transaction confirmed", receipt.transactionHash);
+    }}
+    onError={(error) => {
+        console.error("Transaction error", error);
+    }}
+    gasless={{
+        provider: "biconomy",
+        relayerForwarderAddress: "...",
+        apiId: "...",
+        apiKey: "...",
+    }}
+    >
+    Confirm Transaction
+    </TransactionButton>
+); 
+}
+```
+
+</Step>
+````
+
+</Steps>
