@@ -1,103 +1,90 @@
-import { DocImage, Callout, createMetadata } from "@doc";
-import EnclaveWalletCreation from "./assets/enclave-wallet-creation.png";
-import AppScoped from "./assets/app-scoped.svg";
-import EcosystemScoped from "./assets/ecosystem-scoped.svg";
+import { createMetadata } from "@doc";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
+# Batching transactions
 
 export const metadata = createMetadata({
 	image: {
-		title: "In App wallet and Ecosystem Security",
+		title: "Batching transactions",
 		icon: "wallets",
 	},
-	title: "thirdweb Wallet Security",
-	description:
-		"Learn how thirdweb protects your user's private keys across applications using nitro Enclaves",
+	title: "Batching transactions | thirdweb",
+	description: "How to batch transactions with smart accounts",
 });
 
-# Seguridad de la Billetera thirdweb
+Batching transactions allows sending multiple transactions in a single user operation. This can be useful to save on fees, reduce number of user confimations or to ensure that multiple transactions are executed atomically.
 
-Si está buscando la documentación de seguridad anterior sobre el modelo de intercambio secreto shamir, consulte la página [In-App Wallet Security](/connect/wallet/security/legacy).
+A typical example is to do an approval and a transfer in a single userOperation. This way, the transfer will only happen if the approval is successful.
 
-## Creación del billetera (Wallet)
+<Tabs defaultValue="react">
 
-Cuando un usuario inicia sesión en una aplicación utilizando su correo electrónico o redes sociales por primera vez, se genera una billetera dentro de un enclave seguro en el servidor después de verificar la legitimidad del usuario. El enclave proporciona un entorno de ejecución confiable, asegurándose de que el proceso de creación de la billetera esté aislado y protegido de interferencias externas.
+<TabsList>
+	<TabsTrigger value="react">React</TabsTrigger>
+	<TabsTrigger value="typescript">TypeScript</TabsTrigger>
+</TabsList>
 
-- La billetera y su correspondiente clave privada se generan enteramente dentro del enclave, nunca dejando sus confines seguros.
-- Los datos de autenticación de usuario se verifican dentro del enclave, asegurando que solo los usuarios legítimos y autenticados pueden iniciar la creación de la billetera.
+<TabsContent value="react">
 
-<DocImage src={EnclaveWalletCreation} className="max-w-96" />
+```tsx
+import { useActiveAccount, useSendBatchTransaction } from "thirdweb/react";
+import { approve, transferFrom } from "thirdweb/extensions/erc20";
 
-## Medidas de seguridad
+const smartAccount = useActiveAccount();
+const { mutate: sendBatchTransaction } = useSendBatchTransaction();
 
-- Las propiedades criptográficas del enclave aseguran que ni siquiera los operadores del servidor puedan acceder a los contenidos ni a las operaciones dentro del enclave.
-- El enclave proporciona un hash verificable de la imagen del código que se ejecuta en el dispositivo, permitiendo que cualquiera verifique el contenido del código.
-- La clave privada de la billetera nunca existe en una forma sin encriptar fuera del enclave.
-- Todas las operaciones sensibles, como la firma de transacciones, se producen dentro del enclave, garantizando la seguridad de la billetera.
+const approveAndTransfer = async () => {
+	const transactions = [
+		approve({
+			contract,
+			spender: "0x...",
+			value: 100,
+		}),
+		transferFrom({
+			contract,
+			from: "0x...",
+			to: "0x...",
+			amount: 100,
+		}),
+	];
+	await sendBatchTransaction(transactions);
+};
+```
 
-## Uso de la billetera
+</TabsContent>
 
-### Uso General
+<TabsContent value="typescript">
 
-- Cuando los usuarios interactúan con su billetera a través del enclave, todas las comunicaciones se encripta y sólo el usuario legítimo puede acceder a su cartera.
-- Todo el tráfico se encripta con TLS y HSTS. Los servicios se ejecutan en VPCs privadas sobre AWS y sólo se pueden acceder desde un único punto de entrada a través de nuestro DNS Cloudflare.
-- Las aplicaciones pueden [link multiple authentication methods](/connect/in-app-wallet/guides/link-multiple-profiles) a la misma billetera. Cualquiera de estos métodos puede ser utilizado para autenticarse en la billetera de usuarios.
+```tsx
+import { smartWallet } from "thirdweb/wallets";
+import { sendBatchTransaction } from "thirdweb";
+import { approve, transferFrom } from "thirdweb/extensions/erc20";
 
-### Uso Ecosistema
+const smartWallet = new smartWallet(config);
+const smartAccount = await smartWallet.connect({
+	client,
+	personalAccount,
+});
 
-Las billeteras de ecosistema están controladas por el propietario del ecosistema. Los propietarios del ecosistema pueden especificar políticas de uso para sus socios y desarrolladores que restringen lo que pueden hacer con la billetera. A diferencia del modelo de compartición secreta shamir, el modelo de billetera enclave asegura que la clave privada nunca se reconstruya en el cliente. Esto asegura que nadie pueda extraer la clave privada del cliente, incluyendo a otros desarrolladores del ecosistema. Además, significa también que los socios y desarrolladores deben presentar la solicitud al enclave que podría verificar la solicitud y bloquear las solicitudes que están fuera de alcance o rechazadas por el propietario del ecosistema.  
+const transactions = [
+	approve({
+		contract,
+		spender: "0x...",
+		value: 100,
+	}),
+	transferFrom({
+		contract,
+		from: "0x...",
+		to: "0x...",
+		amount: 100,
+	}),
+];
 
-## Ámbitos
+await sendBatchTransaction({
+	transactions,
+	account: smartAccount,
+});
+```
 
-### Billetera In-App
+</TabsContent>
 
-Las billeteras In-App están limitadas a aplicaciones por ID de Cliente. Si los usuarios utilizan el mismo correo electrónico para iniciar sesión en una aplicación diferente usando Wallets In-App, la aplicación gestionará una cartera totalmente diferente.
-
-#### Beneficios de las billeteras limitadas a una sola aplicación
-
-- Cada aplicación tiene acceso limitado únicamente a las billeteras creadas a través de su propia aplicación. No puede administrar carteras de otras aplicaciones.
-- Los usuarios sólo pueden ver tokens enviados o comprados desde tu aplicación.
-- Para mejorar la experiencia del usuario, los métodos de pago guardados y la verificación KYC solo se proporcionan a thirdweb; las aplicaciones no pueden ver esta información.
-
-<DocImage src={AppScoped} />
-
-### Billetera de Ecosistema
-
-Las billeteras de ecosistema están cubiertas por el ecosistema. Si los usuarios utilizan el mismo correo electrónico para iniciar sesión en una aplicación diferente usando el mismo ecosistema, obtendrán la misma billetera.
-
-#### Beneficios de billeteras de ecosistema
-
-- Las aplicaciones ahora pueden compartir los activos en varias aplicaciones. Esto es útil si eres una marca con múltiples aplicaciones y quieres que tus socios se aprovechen de los efectos de la red.
-- El propietario de la aplicación tiene control total sobre lo que sucede dentro de cada aplicación. Esto es útil si usted es una marca que quiere asegurar que todas las aplicaciones en su ecosistema sigan las mismas reglas.
-
-<DocImage src={EcosystemScoped} />
-
-## Recuperación
-
-- Los usuarios pueden exportar su clave privada en cualquier momento. 
-
-- Los usuarios pueden recuperar su billetera desde cualquier dispositivo autenticando o entrando en una aplicación para recibir acceso a su billetera.
-
-- Thirdweb wallets support four categories of authentication: socials, custom authentication, external wallets, and email / phone authentication. If a user ever loses access to their authentication method:
-
-  1. **For socials and email / phone authentication,** users can utilize the recovery flow of their providers to regain access to their account.
-  2. **In the case of custom authentication,** the developer managing their authentication flow will be able to re-instate the users account upon successful verification.
-  3. Application providers **do not have direct access** to user accounts or private keys, as these remain secured within the enclave. The enclave's design ensures that only verified user requests can trigger wallet operations.
-
-- Users are able to link their authentication methods which will provide them multiple ways to access their account if they ever lose access to any one of their authentication method.
-
-## Security & privacy
-
-### TLS Encryption
-
-To increase security and privacy, private keys or wallet "seed phrases" are never stored or sent over a network. TLS encryption is used in transit for internal and external communications with thirdweb's back-end and databases. TLS encryption is also required for third-party vendors.
-
-### AES-256
-
-Data backups and storage are encrypted with AES-256.
-
-### GDPR & CCPA
-
-thirdweb complies to GDPR and CCPA compliance frameworks and deletes customer data per request within the required timeframe of each standard (30 days for GDPR and 45 for CCPA).
-
-### Audit and Bounty Program
-
-Halborn has audited our enclave wallet security architecture which we'll be releasing shortly, and there is an ongoing bounty program to ensure vulnerabilities are caught. [View the Letter of Attestation.](/pdfs/thirdweb_code_security_audit.pdf)
+</Tabs>
