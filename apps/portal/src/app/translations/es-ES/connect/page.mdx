@@ -2,36 +2,38 @@ import { createMetadata, DocImage } from "@doc";
 
 export const metadata = createMetadata({
 	image: {
-		title: "thirdweb Pay - Customize ConnectButton",
+		title: "thirdweb Pay - Customize PayEmbed",
 		icon: "thirdweb",
 	},
-	title: "thirdweb Pay - Customize ConnectButton - thirdweb",
+	title: "thirdweb Pay - Customize PayEmbed - thirdweb",
 	description:
-		"thirdweb Pay - Customizing ConnectButton onramps and crypto purchase flows",
+		"thirdweb Pay - Customizing embeddable onramps and crypto purchase flows",
 });
 
-# Customize ConnectButton
+# PayEmbed Customization
 
-Learn how to customize Pay within the `ConnectButton` interface. You can find a selection of popular customizations below. For the full list of props, you can [view the full reference](/references/typescript/v5/ConnectButtonProps).
+Learn how to customize the `PayEmbed`. You can find a selection of popular customizations below. For the full list of props, you can [view the full reference](/references/typescript/v5/PayEmbedProps).
 
 ---
 
 ## Customize Supported Tokens
 
-You can enable users to select your token on a given chain by passing an array of `SupportedTokens`. Note that this array overrides all default tokens listed for that chain. Note that this will also show these tokens in the 'Send' screen to transfer tokens.
+You can enable users to select your token on a given chain by passing an array of `SupportedTokens`. Note that this array overrides all default tokens listed for that chain.
 
 ```tsx
-<ConnectButton
+<PayEmbed
 	client={client}
-	supportedTokens={{
-		"1": [
-			{
-				address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-				name: "USD Coin",
-				symbol: "USDC",
-				icon: usdcIcon,
-			},
-		],
+	payOptions={{
+		supportedTokens: {
+			"1": [
+				{
+					address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+					name: "USD Coin",
+					symbol: "USDC",
+					icon: usdcIcon,
+				},
+			],
+		},
 	}}
 />
 ```
@@ -47,23 +49,21 @@ For example, if you wanted users to only purchase Ethereum on Base network, you 
 ```tsx
 import { base } from "thirdweb/chains";
 
-<ConnectButton
+<PayEmbed
 	client={client}
-	detailsModal={{
-		payOptions: {
-			prefillBuy: {
-				token: {
-					address: "0x866a087038f7C12cf33EF91aC5b1AcE6Ac1DA788",
-					name: "Base ETH",
-					symbol: "ETH",
-					icon: "...", // optional
-				},
-				chain: base,
-				allowEdits: {
-					amount: true, // allow editing buy amount
-					token: false, // disable selecting buy token
-					chain: false, // disable selecting buy chain
-				},
+	payOptions={{
+		prefillBuy: {
+			token: {
+				address: "0x866a087038f7C12cf33EF91aC5b1AcE6Ac1DA788",
+				name: "Base ETH",
+				symbol: "ETH",
+				icon: "...", // optional
+			},
+			chain: base,
+			allowEdits: {
+				amount: true, // allow editing buy amount
+				token: false, // disable selecting buy token
+				chain: false, // disable selecting buy chain
 			},
 		},
 	}}
@@ -73,13 +73,11 @@ import { base } from "thirdweb/chains";
 If you'd like to prefill a purchase with a native token, you can set the chain without passing a token:
 
 ```tsx
-<ConnectButton
+<PayEmbed
 	client={client}
-	detailsModal={{
-		payOptions: {
-			prefillBuy: {
-				chain: base,
-			},
+	payOptions={{
+		prefillBuy: {
+			chain: base,
 		},
 	}}
 />
@@ -94,12 +92,10 @@ In some cases, you may only want to show users fiat or crypto payment options fo
 #### Disable Buy With Crypto
 
 ```tsx
-<ConnectButton
+<PayEmbed
 	client={client}
-	detailsModal={{
-		payOptions: {
-			buyWithCrypto: false,
-		},
+	payOptions={{
+		buyWithCrypto: false,
 	}}
 />
 ```
@@ -107,12 +103,10 @@ In some cases, you may only want to show users fiat or crypto payment options fo
 #### Disable Buy With Fiat
 
 ```tsx
-<ConnectButton
+<PayEmbed
 	client={client}
-	detailsModal={{
-		payOptions: {
-			buyWithFiat: false,
-		},
+	payOptions={{
+		buyWithFiat: false,
 	}}
 />
 ```
@@ -130,9 +124,9 @@ You can refer to our [`Theme`](/references/typescript/v5/Theme) page for a full 
 #### Provided Themes
 
 ```tsx
-<ConnectButton theme='light' />
+<PayEmbed theme='light' />
 
-<ConnectButton theme='dark' />
+<PayEmbed theme='dark' />
 ```
 
 #### Custom Theme
@@ -141,6 +135,6 @@ You can refer to our [`Theme`](/references/typescript/v5/Theme) page for a full 
 import { darkTheme } from 'thirdweb/react';
 
 // Using custom theme
-<ConnectButton theme={darkTheme({ ... })} />
+<PayEmbed theme={darkTheme({ ... })} />
 
 ```
