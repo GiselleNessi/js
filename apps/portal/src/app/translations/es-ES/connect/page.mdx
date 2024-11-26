@@ -1,59 +1,104 @@
 import {
-	OpenSourceCard,
-	DocImage,
+	Tabs,
+	TabsList,
+	TabsTrigger,
+	TabsContent,
 	ArticleIconCard,
-	Stack,
+	Grid,
 	createMetadata,
 } from "@doc";
-import ConnectCompat from "./connect-wallet-embedded-compact.png";
-import ConnectDropdown from "./connect-wallet-smart-dropdown.png";
-import { Layers2Icon } from "lucide-react";
+import { ReactIcon, UnityIcon } from "@/icons";
+import WalletIcon from "../../images/wallet.png";
 
 export const metadata = createMetadata({
 	image: {
-		title: "Enable Gasless Transactions with In-App Wallet",
+		title: "Interact with the blockchain with In-App Wallet",
 		icon: "wallets",
 	},
-	title: "Enable Gasless Transactions | thirdweb In-App Wallet",
+	title: "Interact with the blockchain | thirdweb In-App Wallet",
 	description:
-		"By using account abstraction you can create a truly seamless user experience with gasless transactions, batched transactions, and full account recovery.",
+		"One connected, in-app wallets can be used alongside the Contract SDK to interact with the blockchain",
 });
 
-# Sponsor Transactions
+# Interact with the blockchain
 
-By combining [Account abstraction](/connect/account-abstraction) and [In-App Wallet](/connect/in-app-wallet/overview), you can create a truly seamless user experience:
+One connected, in-app wallets can be used alongside the [Contract SDK](/contracts/interact/overview) to interact with the blockchain.
 
-- Gasless transactions sponsored by your application
-- Batched transactions
-- Full account recovery the user "account"
+## Initialize the SDK With Your Wallet
 
-## Configure in-app wallet for sponsored transactions
+<Tabs defaultValue="react">
 
-To enable account abstraction in your app, you need to add the `smartAccount` prop with the `inAppWallet` creation.
+<TabsList>
+	<TabsTrigger value="react">React & React Native </TabsTrigger>
+	<TabsTrigger value="typescript">Other Frameworks</TabsTrigger>
+</TabsList>
 
-```jsx
-import { ConnectButton } from "thirdweb/react";
-import { inAppWallet } from "thirdweb/wallets";
+<TabsContent value="react">
+The `ThirdwebProvider` handles maintaining the connection state, and allows using all the hooks in the SDK to interact with the blockchain as the connected user.
 
-const wallets = [inAppWallet({
-	smartAccount: {
-		chain: "sepolia",
-		sponsorGas: true,
-	},
-})];
+Here's an example using the `TransactionButton` component to claim an NFT on a smart contract:
 
+```tsx
 export default function App() {
+	const account = useActiveAccount();
+
 	return (
-		<ThirdwebProvider>
-			<ConnectButton
-				client={client}
-				wallets={wallets}
-			/>
-		</ThirdwebProvider>
+		<div>
+			<TransactionButton
+				transaction={() => {
+					if (!account) {
+						return alert("Please connect your wallet");
+					}
+					return claimTo({ contract, to: account.address, quantity: 1 });
+				}}
+			>
+				Claim NFT
+			</TransactionButton>
+		</div>
 	);
 }
 ```
 
-This will create an in-app wallet and a smart account for the user. The smart account will be initialized with the in-app wallet as the owner.
+</TabsContent>
 
-You can sponsor transactions simply by passing `sponsrGas: true` to the `smartAccount` prop. This will allow the smart account to send transactions without the user needing to hold any ETH.
+<TabsContent value="typescript">
+You can pass the connected account to any of the transaction actions:
+
+```typescript
+import { createThirdwebClient, getContract, sendTransaction } from "thirdweb";
+import { sepolia } from "thirdweb/chains";
+import { inAppWallet } from "thirdweb/wallets";
+
+const wallet = inAppWallet();
+const account = await wallet.connect({
+	client,
+	strategy: "google",
+});
+
+const contract = getContract({ client, address: "0x..." });
+
+const transaction = claimTo({
+	contract,
+	to: wallet.account.address,
+	quantity: 1,
+});
+await sendTransaction({ transaction, account });
+```
+
+</TabsContent>
+
+</Tabs>
+
+## Full Reference
+
+View everything you can do in the Connect SDK once you have connected your wallet:
+
+<Grid className="lg:grid-cols-2">
+
+<ArticleIconCard
+	href={"/typescript/v5"}
+	image={WalletIcon}
+	title="Connect SDK reference"
+/>
+
+</Grid>
