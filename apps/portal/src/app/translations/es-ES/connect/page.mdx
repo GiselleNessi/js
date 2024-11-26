@@ -1,139 +1,98 @@
-import { createMetadata, DocImage } from "@doc";
+import { createMetadata } from "@doc";
 
 export const metadata = createMetadata({
 	image: {
-		title: "thirdweb Pay - Customize sendTransaction",
+		title: "thirdweb Pay - FAQs",
 		icon: "thirdweb",
 	},
-	title: "thirdweb Pay - Customize sendTransaction - thirdweb",
-	description:
-		"thirdweb Pay - Customizing point of sale onramps and crypto purchase flows",
+	title: "thirdweb Pay - FAQs - thirdweb",
+	description: "thirdweb Pay - Frequently Asked Questions",
 });
 
-# useSendTransaction Customization
+# FAQs
 
-Learn how to customize the Pay interface when executing a transaction with `useSendTransaction`. You can find a selection of popular customizations below. For the full list of props, you can [view the full reference](/references/typescript/v5/SendTransactionConfig).
+### What are the fees for Buy With Fiat?
 
----
+thirdweb takes a 1% fee on all Buy With Fiat transactions. Additional processing fees will depend on the selected onramp vendor.
 
-## Customize Supported Tokens
+### What are the fees for Buy With Crypto?
 
-You can enable users to select your token on a given chain by passing an array of `SupportedTokens`. Note that this array overrides all default tokens listed for that chain.
+thirdweb takes a 1% fee on all Buy With Crypto transactions.
 
-```tsx
-const { mutate: sendTransaction } = useSendTransaction({ 
-	payModal: {
-		supportedTokens: {
-			"1": [
-				{
-					address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-					name: "USD Coin",
-					symbol: "USDC",
-					icon: usdcIcon,
-				},
-			],
-		},
-	}
-});
-```
+### How does fee sharing work for Buy With Crypto?
 
----
+thirdweb shares 70% of all fees collected through Buy With Crypto with our developers. Fee sharing is not currently available for Buy With Fiat transactions.
 
-## Prefill Destination Token
+### What does the term “network fees” refer to?
 
-In the case you want your users to purchase your token by default in your application, you can choose to pre-fill the Pay purchase flow with `prefillBuy` .
+Network fees, also referred to as miner fees, are paid to the miner for processing crypto transactions and securing the respective network. These fees do not go to thirdweb.
 
-For example, if you wanted users to only purchase Ethereum on Base network, you could do as follows:
+### What are your transaction limits for Buy With Fiat?
 
-```tsx
-import { base } from "thirdweb/chains";
+We currently require a $1 minimum purchase for both stablecoin and non-stablecoin purchases through Buy With Fiat.
 
-const { mutate: sendTransaction } = useSendTransaction({ 
-	payModal: {
-		prefillBuy: {
-			token: {
-				address: "0x866a087038f7C12cf33EF91aC5b1AcE6Ac1DA788",
-				name: "Base ETH",
-				symbol: "ETH",
-				icon: "...", // optional
-			},
-			chain: base,
-			allowEdits: {
-				amount: true, // allow editing buy amount
-				token: false, // disable selecting buy token
-				chain: false, // disable selecting buy chain
-			},
-		},
-	}});
-```
+Our transaction maximum starts from $1500 per week for new users and can increase over time to $10,000 per week.
 
-If you'd like to prefill a purchase with a native token, you can set the chain without passing a token:
+### What countries does Buy With Fiat support?
 
-```tsx
-const { mutate: sendTransaction } = useSendTransaction({ 
-	payModal: {
-		prefillBuy: {
-			chain: base,
-		},
-	}}
-);
-```
+**Buy With Fiat** is available 130+ countries. The following countries are _UNSUPPORTED_:
 
----
+- Afghanistan
+- Africa (All Countries)
+- Belarus
+- Bolivia
+- China
+- Cuba
+- Colombia
+- Haiti
+- Honduras
+- Iran
+- Iraq
+- Latvia
+- Lebanon
+- Myanmar
+- Pakistan
+- Qatar
+- Russia
+- Ukraine
+- United Arab Emirates
+- Venezuela
+- Yemen
 
-## Disable Payment Methods
+All United States are supported, excluding Hawaii.
 
-In some cases, you may only want to show users fiat or crypto payment options for your onchain goods or services. You can do this by setting either `buyWithCrypto` or `buyWithFiat` to `false`.
+### Does thirdweb offer direct onramping to tokens through Buy With Fiat?
 
-#### Disable Buy With Crypto
+We offer direct onramping **internationally** to the following tokens:
 
-```tsx
-const { mutate: sendTransaction } = useSendTransaction({ 
-	payModal: {
-		buyWithCrypto: false,
-	}}
-);
-```
+- Mainnet (Ethereum)
+- Avalanche
+- Polygon
 
-#### Disable Buy With Fiat
+We offer direct onramping to the following tokens in the **US only**:
 
-```tsx
-const { mutate: sendTransaction } = useSendTransaction({ 
-	payModal: {
-		buyWithFiat: false,
-	}}
-);
-```
+- ETH (Base)\*
+- USDC (Ethereum)
+- USDC (Polygon)\*
+- USDC (Avalanche)\*
+- USDC (Base)\*
 
----
+All other tokens will require an additional Buy With Crypto step.
 
-## Theme
+\* Not available in New York or the EU.
 
-You can set the theme for the Pay component, which is set to `"dark"` by default. theme can be set to either `"dark"` , `"light"` or a custom theme object.
+### How does KYC work with Buy With Fiat
 
-We have [`lightTheme`](/references/typescript/v5/lightTheme) or [`darkTheme`](/references/typescript/v5/darkTheme) providers that you can override to kickstart customization.
+Users will be required to complete KYC verification for their first purchase using 'Buy with Fiat.' After that, no further KYC will be needed for future purchases on the same platform.
 
-You can refer to our [`Theme`](/references/typescript/v5/Theme) page for a full view of customizable options if you’d prefer to create a custom theme from scratch.
+### What cryptocurrencies does Pay support?
 
-#### Provided Themes
+Pay can support any currency on our [supported chains](/connect/pay/supported-chains).
 
-```tsx
-const { mutate: sendTransaction } = useSendTransaction({ 
-	payModal: {
-		theme: "dark", // or "light"
-	}}
-);
-```
+### How are cryptocurrency prices set in thirdweb Pay?
 
-#### Custom Theme
+Prices are set depending on the liquidity provider used to route your transaction.
 
-```tsx
-import { darkTheme } from 'thirdweb/react';
+### Does thirdweb Pay offer fiat payouts?
 
-// Using custom theme
-const { mutate: sendTransaction } = useSendTransaction({ 
-	payModal: {
-		theme: darkTheme({ ... },
-	}}
-);
-```
+Fiat payouts are not currently available.
