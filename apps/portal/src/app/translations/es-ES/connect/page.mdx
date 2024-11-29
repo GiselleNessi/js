@@ -1,38 +1,188 @@
-import { Callout, DocImage, createMetadata, Steps, Step } from "@doc";
-import CreateEcosystemWallet from "../assets/create-ecosystem-wallet.png";
-import EcosystemWalletPermissions from "../assets/ecosystem-wallet-permissions.png";
-import AddAPartner from "../assets/add-partner.png";
+import { createMetadata, ArticleIconCard, Callout } from "@doc";
+import {
+    ReactIcon,
+    TypeScriptIcon,
+    UnityIcon,
+    DotNetIcon,
+    ExternalLinkIcon,
+    UnrealEngineIcon
+} from "@/icons"
 
 export const metadata = createMetadata({
 	image: {
-		title: "thirdweb Ecosystem Wallet",
+		title: "Guest Mode",
 		icon: "wallets",
 	},
-	title: "Managing Ecosystem Permissions - Ecosystem Wallet | thirdweb",
-	description: "Ecosystem Wallet - Own your own web3 identity stack",
+	title: "Guest Mode",
+	description:
+		"Learn how to get users started in thirdweb wallets without requiring sign-in.",
 });
 
-# Managing Ecosystem Permissions
+# Guest Mode
 
-There are two permission options depending on whether you’d like an open or exclusive ecosystem wallet. You can manage these permissions from the Permissions page in your Ecosystem Wallet Dashboard.
+Sometimes users want to get started using your app without signing in. You can now give users an in-memory "guest account" that can then be converted into a standard account by linking another auth method.
 
-<DocImage src={EcosystemWalletPermissions} />
+## Logging in with Guest Mode
 
-### Anyone
+In general, logging in with guest mode is the same as configuring any other login method in the platform of your choice. See the [login methods overview](/connect/wallet/sign-in-methods/overview) for more information on configuring your login options.
 
-If you want to allow anyone to integrate your ecosystem wallet, no other changes are required. You can protect your ecosystem against malicious actors by adding unwanted domains to your blocklist.
+### In App Wallet
 
-### Allowlist
+<div className="my-4 grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+    <ArticleIconCard
+        title="TypeScript"
+        icon={TypeScriptIcon}
+        description="Guest Login for in-app wallets in TypeScript"
+        href="/typescript/v5/inAppWallet#connect-to-a-guest-account"
+    />
+    <ArticleIconCard
+        title="React"
+        icon={ReactIcon}
+        description="Guest Login for in-app wallets in React"
+        href="/react/v5/in-app-wallet/get-started#choose-authentication-methods"
+    />
+    {/* TODO: Link to react native getting started for in app wallet */}
+    <ArticleIconCard
+        title="React Native"
+        icon={ReactIcon}
+        description="Guest Login for in-app wallets in React Native"
+        href="/react/v5/in-app-wallet/get-started#choose-authentication-methods"
+    />
+	<ArticleIconCard
+        title=".NET"
+        icon={DotNetIcon}
+        description="Guest Login for in-app wallets in .NET"
+        href="/dotnet/wallets/providers/in-app-wallet#usage"
+    />
+    <ArticleIconCard
+        title="Unity"
+        icon={UnityIcon}
+        description="Guest Login for in-app wallets in Unity"
+        href="/unity/v5/wallets/in-app-wallet#login-with-guest---onboard-easily-link-other-accounts-later"
+    />
+   
+</div>
 
-If you’re looking to create an ecosystem wallet for select partners, you can head to the Ecosystem Wallet dashboard, navigate to Permissions, and select “Allowlist”.
+### Ecosystem Wallet
 
-**Add Applications to Your Allowlist**
+<div className="my-4 grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+    <ArticleIconCard
+        title="TypeScript"
+        icon={TypeScriptIcon}
+        description="Guest Login for ecosystem wallets in TypeScript"
+        href="/typescript/v5/ecosystemWallet#example"
+    />
+    <ArticleIconCard
+        title="React"
+        icon={ReactIcon}
+        description="Guest Login for ecosystem wallets in React"
+        href="/react/v5/ecosystem-wallet/get-started#configuring-auth-strategies"
+    />
+    {/* TODO: Add react native specific getting started for ecosystem wallets */}
+    <ArticleIconCard
+        title="React Native"
+        icon={ReactIcon}
+        description="Guest Login for ecosystem wallets in React Native"
+        href="/react/v5/ecosystem-wallet/get-started#configuring-auth-strategies"
+    />
+     <ArticleIconCard
+        title=".NET"
+        icon={DotNetIcon}
+        description="Guest Login for ecosystem wallets in .NET"
+        href="/dotnet/wallets/providers/ecosystem-wallet#login-methods"
+    />
+    <ArticleIconCard
+        title="Unity"
+        icon={UnityIcon}
+        description="Guest Login for ecosystem wallets in Unity"
+        href="/unity/v5/wallets/ecosystem-wallet#login-with-guest---onboard-easily-link-other-accounts-later"
+    />
+</div>
 
-For each application on your allowlist, you'll need to specify a name, a list of allowed domains, and an optional bundle ID (for mobile applications). The list of domains will determine where a partner will be able to display your ecosystem as a login option. Once a partner is added, a **Partner ID** will be generated.
+## Making the Guest Wallet Permanent
 
-<Callout title="Adding Your Own App as a Partner" variant="info">
-	You'll need to add your own domains and bundle IDs to your allowlist in order
-	to login through your ecosystem wallet in your app.
-</Callout>
+When your user is ready, link any other auth method so they can access their account in the future.
 
-<DocImage src={AddAPartner} />
+### In App Wallet
+
+Below are the guides for linking a new identity for in-app wallet on the various platforms:
+
+<div className="my-4 grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+    <ArticleIconCard
+        title="TypeScript"
+        icon={TypeScriptIcon}
+        description="Link identites in-app wallets in TypeScript"
+        href="/typescript/v5/linkProfile"
+    />
+    <ArticleIconCard
+        title="React"
+        icon={ReactIcon}
+        description="Link identites in-app wallets in React"
+        href="/react/v5/useLinkProfile"
+    />
+    {/* TODO: Link to react native getting started for in app wallet */}
+    <ArticleIconCard
+        title="React Native"
+        icon={ReactIcon}
+        description="Link identites in-app wallets in React Native"
+        href="/react/v5/useLinkProfile"
+    />
+	<ArticleIconCard
+        title=".NET"
+        icon={DotNetIcon}
+        description="Link identites in-app wallets in .NET"
+        href="/dotnet/wallets/providers/in-app-wallet#unified-identity---account-linking"
+    />
+    <ArticleIconCard
+        title="Unity"
+        icon={UnityIcon}
+        description="Link identites in-app wallets in Unity"
+        href="/unity/v5/wallets/in-app-wallet#account-linking"
+    />
+</div>
+
+### Ecosystem Wallet
+
+Below are the guides for linking a new identity for ecosystem wallet on the various platforms:
+
+<div className="my-4 grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+    <ArticleIconCard
+        title="TypeScript"
+        icon={TypeScriptIcon}
+        description="Configure login options for ecosystem wallets in TypeScript"
+        href="/typescript/v5/linkProfile"
+    />
+    <ArticleIconCard
+        title="React"
+        icon={ReactIcon}
+        description="Configure login options for ecosystem wallets in React"
+        href="/react/v5/useLinkProfile"
+    />
+    {/* TODO: Add react native specific getting started for ecosystem wallets */}
+    <ArticleIconCard
+        title="React Native"
+        icon={ReactIcon}
+        description="Configure login options for ecosystem wallets in React Native"
+        href="/react/v5/useLinkProfile"
+    />
+     <ArticleIconCard
+        title=".NET"
+        icon={DotNetIcon}
+        description="Connect ecosystem wallets in .NET"
+        href="/dotnet/wallets/providers/ecosystem-wallet#unified-identity---account-linking"
+    />
+    <ArticleIconCard
+        title="Unity"
+        icon={UnityIcon}
+        description="Configure login options for ecosystem wallets in Unity"
+        href="/unity/v5/wallets/ecosystem-wallet#account-linking"
+    />
+</div>
+
+## Wrapping Up
+
+Your user can now access this same wallet with their Google account. 
+
+While it is not linked to any other identity, the lifetime of the guest wallet for any given user will last until they clear their browser storage.
+
+You can try out Guest Mode [on our playground.](https://playground.thirdweb.com/connect/sign-in/button)
