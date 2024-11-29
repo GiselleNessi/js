@@ -1,150 +1,171 @@
+import { Callout, OpenSourceCard, createMetadata, InstallTabs, ArticleIconCard } from "@doc";
 import {
-	ArticleCard,
-	GithubTemplateCard,
-	Grid,
-	ExpandableGrid,
-	createMetadata,
-	OpenSourceCard,
-	Stack,
-	ConnectCard,
-	Callout
-} from "@doc";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+    ReactIcon,
+    TypeScriptIcon,
+    UnityIcon,
+    DotNetIcon,
+    ExternalLinkIcon,
+    UnrealEngineIcon
+} from "@/icons"
 
 export const metadata = createMetadata({
-	title: "thirdweb Connect",
-	description: "Everything you need for your web3 frontend.",
 	image: {
-		title: "thirdweb Connect",
-		icon: "thirdweb",
+		title: "Get started with thirdweb Wallets",
+		icon: "wallets",
 	},
+	title: "Get started with thirdweb Wallet",
+	description: "Get started with thirdweb Wallet",
 });
 
-# ¿Qué es Connect?
+# Get Started
 
-Connect is the complete toolkit for connecting every user to your application. It features customizable onboarding flows, self-custodial in-app wallets, account abstraction, onramps, and a performant API to interact with the blockchain.
+thirdweb offers multiple ways to add wallets to your application. Choose the method that best suits your needs:
 
-<div
-	className={cn(
-		"my-4 grid gap-4 md:grid-cols-2 lg:grid-cols-2",
-		props.className,
-	)}
->
-	<ConnectCard
-		title="Playground"
-		href="https://playground.thirdweb.com"
-		iconUrl="/icons/connect/intros/demo.svg"
-	/>
-	<ConnectCard
-		title="Quickstart"
-		href="https://portal.thirdweb.com/react/v5/getting-started"
-		iconUrl="/icons/connect/intros/quickstart.svg"
-	/>
-	{/* <ConnectCard
-		title="Why Connect?"
-		href="https://playground.thirdweb.com"
-		iconUrl="/icons/connect/intros/demo.svg"
-	/>
-	<ConnectCard
-		title="Guía rápida"
-		href="https://portal.thirdweb.com/react/v5/getting-started"
-		iconUrl="/icons/connect/intros/quickstart.svg"
-	/>
-	{/* <ConnectCard
-		title="¿Por qué Connect?"
-		href=""
-		iconUrl="/icons/connect/intros/why-connect.svg"
-	/>
-	<ConnectCard
-		title="Video Tutorial"
-		href=""
-		iconUrl="/icons/connect/intros/video-tutorial.svg"
-	/> */}
+1. **External Wallets** - Connect to existing wallets like MetaMask, Coinbase Wallet, etc.
+2. **In-App Wallets** - Create wallets with social/email login.
+3. **Ecosystem Wallets** - Create wallets with social/email login that is shareable across various aplications.
+
+These methods can be used independently or together in the same application to provide the best experience for your users.
+
+## Try the demo
+
+We have a playground that lets you see all the various options via our prebuilt UI:
+
+<ArticleIconCard
+    title="Connect demo"
+    icon={ExternalLinkIcon}
+    description="Play around with various wallet connection options"
+    href="https://playground.thirdweb.com/connect/sign-in/button"
+/>
+
+## Integrate into existing project
+
+Install the required package:
+
+<InstallTabs
+	npm="npm i thirdweb"
+	yarn="yarn add thirdweb"
+	pnpm="pnpm i thirdweb"
+	bun="bun i thirdweb"
+/>
+
+## Get your client ID
+
+To use in-app wallets in your applications, you will need a client ID. You can get one for free on [your thirdweb dashboard](https://thirdweb.com/create-api-key).
+
+## Connecting & Creating In-App Wallets
+
+## External Wallets
+
+Connect to popular external wallets:
+
+<div className="my-4 grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+    <ArticleIconCard
+        title="TypeScript"
+        icon={TypeScriptIcon}
+        description="Connect external wallets in TypeScript"
+        href="/typescript/v5/createWallet"
+    />
+    <ArticleIconCard
+        title="React"
+        icon={ReactIcon}
+        description="Connect external wallets in React"
+        href="/react/v5/connecting-wallets/ui-components"
+    />
+    <ArticleIconCard
+        title="React Native"
+        icon={ReactIcon}
+        description="Connect external wallets in React Native"
+        href="/react-native/v5/ConnectButton"
+    />
+    <ArticleIconCard
+        title="Unity"
+        icon={UnityIcon}
+        description="Connect external wallets in Unity"
+        href="/unity/v5/wallets/walletconnect"
+    />
 </div>
-### With Connect, you can:
 
-- **Conéctate a más de 350 proveedores de billeteras diferentes** con soporte para cada red EVM
-- **Inicia sesión y autentica a tus usuarios**  con flujos personalizables y seguros de [email, phone, passkeys and social login] (https://portal.thirdweb.com/connect/in-app-wallet/overview).
-- **Sponsor transactions** to seamlessly onboard non-native or new crypto users with [Account Abstraction](https://portal.thirdweb.com/connect/account-abstraction/overview).
-- **Perform wallet actions** like connecting and disconnecting wallets, viewing balance, displaying ENS names, and execute transactions with our [perfomant, reliable and type safe API](https://portal.thirdweb.com/connect/blockchain-api)
-- **Easily integrate with thirdweb's contracts** to enable users to interact with your application.
-- **Facilitate payments** by letting user top up their wallets or do onchain purchases with a credit card with [Pay](https://portal.thirdweb.com/connect/pay/overview).
+## In-App Wallets
 
-<Callout variant="info" title="Have you generated a client ID?">
-	<div className="flex flex-col gap-4 items-start">
-	<p>
-		You'll need a client ID to access Connect's free blockchain APIs, storage, and more.
-	</p>
-	<Link
-			href="https://thirdweb.com/create-api-key"
-			target="_blank"
-		>
-		<Button> 
-			Generate
-		</Button>
-		</Link>
-	</div>
-</Callout>
+Create in-app wallets with social/email/sms/passkey login via the following guides:
 
-### Cadenas compatibles
+<div className="my-4 grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+    <ArticleIconCard
+        title="TypeScript"
+        icon={TypeScriptIcon}
+        description="Implement in-app wallets in TypeScript"
+        href="/typescript/v5/inAppWallet"
+    />
+    <ArticleIconCard
+        title="React"
+        icon={ReactIcon}
+        description="Implement in-app wallets in React"
+        href="/react/v5/in-app-wallet/get-started"
+    />
+    {/* TODO: Link to react native getting started for in appw allet */}
+    <ArticleIconCard
+        title="React Native"
+        icon={ReactIcon}
+        description="Implement in-app wallets in React Native"
+        href="/react/v5/in-app-wallet/get-started"
+    />
+      <ArticleIconCard
+        title=".NET"
+        icon={DotNetIcon}
+        description="Connect in-app wallets in .NET"
+        href="/dotnet/wallets/providers/in-app-wallet"
+    />
+    <ArticleIconCard
+        title="Unity"
+        icon={UnityIcon}
+        description="Implement in-app wallets in Unity"
+        href="/unity/v5/wallets/in-app-wallet"
+    />
+    <ArticleIconCard
+        title="Unreal Engine"
+        icon={UnrealEngineIcon}
+        description="Implement in-app wallets in Unreal Engine"
+        href="/unreal-engine/blueprints/in-app-wallet"
+    />
+</div>
 
-Connect is supported on every EVM compatible chain. To view the full list, visit [thirdweb chainlist](https://thirdweb.com/chainlist).
+## Ecosystem Wallets
 
-### Plantillas
+If you're looking to set up an ecosystem from scratch, refer to the [set-up guide](/connect/wallet/ecosystem/set-up)
 
-<ExpandableGrid>
+If you're looking to integrate ecosystem wallets in your aplication, refer to the following guides:
 
-<GithubTemplateCard
-	title="Next Starter"
-	href="https://github.com/thirdweb-example/next-starter"
-	tag="Starter"
-/>
-<GithubTemplateCard
-	title="Vite Starter"
-	href="https://github.com/thirdweb-example/vite-starter"
-	tag="Starter"
-/>
-<GithubTemplateCard
-	title="Node Starter"
-	href="https://github.com/thirdweb-example/node-starter"
-	tag="Starter"
-/>
-<GithubTemplateCard
-	title="Expo Starter"
-	href="https://github.com/thirdweb-example/expo-starter"
-	tag="Starter"
-/>
-
-<GithubTemplateCard
-	title="NFT Marketplace"
-	href="https://github.com/thirdweb-example/marketplace-v3"
-	tag="Builds"
-/>
-
-<GithubTemplateCard
-	title="Auth - NextJS"
-	href="https://github.com/thirdweb-example/thirdweb-auth-next"
-	tag="Example"
-/>
-
-<GithubTemplateCard
-	title="Auth - Express"
-	href="https://github.com/thirdweb-example/thirdweb-auth-express"
-	tag="Example"
-/>
-
-<GithubTemplateCard
-	title="Account Abstraction"
-	href="https://github.com/thirdweb-example/account-abstraction"
-	tag="Example"
-/>
-
-<GithubTemplateCard
-	title="Sign in with Farcaster"
-	href="https://github.com/thirdweb-example/thirdweb-siwf"
-	tag="Example"
-/>
-
-</ExpandableGrid>
+<div className="my-4 grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+    <ArticleIconCard
+        title="TypeScript"
+        icon={TypeScriptIcon}
+        description="Connect ecosystem wallets in TypeScript"
+        href="/typescript/v5/ecosystemWallet"
+    />
+    <ArticleIconCard
+        title="React"
+        icon={ReactIcon}
+        description="Connect ecosystem wallets in React"
+        href="/react/v5/ecosystem-wallet/get-started"
+    />
+    {/* TODO: Add react native specific getting started for ecosystem wallets */}
+    <ArticleIconCard
+        title="React Native"
+        icon={ReactIcon}
+        description="Connect ecosystem wallets in React Native"
+        href="/react/v5/ecosystem-wallet/get-started"
+    />
+     <ArticleIconCard
+        title=".NET"
+        icon={DotNetIcon}
+        description="Connect ecosystem wallets in .NET"
+        href="/dotnet/wallets/providers/ecosystem-wallet"
+    />
+    <ArticleIconCard
+        title="Unity"
+        icon={UnityIcon}
+        description="Connect ecosystem wallets in Unity"
+        href="/unity/v5/wallets/ecosystem-wallet"
+    />
+</div>
