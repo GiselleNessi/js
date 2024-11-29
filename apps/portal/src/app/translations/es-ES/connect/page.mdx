@@ -1,114 +1,94 @@
-import { Steps, Step } from "@doc";
+# Customization Options
 
-# Quickstart
+Our ConnectButton and ConnectEmbed components are highly customizable. You can find a selection of popular customizations below. For the full list of props, you can [view the full reference](https://portal.thirdweb.com/references/typescript/v5/ConnectButtonProps).
 
-Learn how to add Connect SDK to your application, log in your users, and allow them to interact with your application.
+## Logo
 
-The following guide is in Typescript. You can also learn how to integrate Connect with our [Unity SDK](https://portal.thirdweb.com/unity).
-
-<Steps>
-<Step title="Install the Connect SDK">
-
-```bash
-npm i thirdweb
-```
-
-</Step>
-
-<Step title="Get Your Client ID">
-
-Log in to the [thirdweb dashboard](https://thirdweb.com/team/~/~/projects). Create a new project to get your **Client ID**.
-
-</Step>
-
-<Step title="Set up the Client, Provider and ConnectButton">
-
-1. Pass your clientId to `createThirdwebClient`
-2. Wrap your application with a `ThirdwebProvider`
-3. Add a `ConnectButton` to your application
+You can customize the logo shown on the Connect modal by adding it to the `appMetadata` prop:
 
 ```tsx
-import { createThirdwebClient } from "thirdweb";
-import { ThirdwebProvider, ConnectButton } from "thirdweb/react";
+import { ConnectButton } from "thirdweb/react";
 
-export const client = createThirdwebClient({ clientId: <your_client_id> });
-
-export default function App() {
-  return (
-    <ThirdwebProvider>
-      <ConnectButton client={client} />
-    </ThirdwebProvider>
-  );
+function Example() {
+	return (
+		<div>
+			<ConnectButton
+				appMetadata={{
+					logoUrl: "https://path/to/my-app/logo.svg",
+				}}
+			/>
+		</div>
+	);
 }
 ```
 
-</Step>
+---
 
-<Step title="Interact With A Wallet">
+## Compact Modal
 
-Once your user has logged in by clicking the `ConnectButton`, you can interact with their wallet.
-
-Here's how to:
-
-1. Get the wallet address using `useActiveAccount`
-2. Read the wallet balance using `useWalletBalance`
+The Connect modal is set to `"wide"` by default. You can set it to `"compact"` by adding it to the `connectModal` prop:
 
 ```tsx
-import { useActiveAccount, useWalletBalance } from "thirdweb/react";
+import { ConnectButton } from "thirdweb/react";
 
-export default function MyComponent() {
-  // 1. get wallet address
-  const account = useActiveAccount();
-  console.log("wallet address", account?.address);
-
-  // 2. get wallet balance
-  const { data: balance, isLoading } = useWalletBalance({
-    client,
-    chain,
-    address: account?.address,
-  });
-  console.log("wallet balance", balance?.displayValue, balance?.symbol);
+function Example() {
+	return (
+		<div>
+			<ConnectButton connectModal={{ size: "compact" }} />
+		</div>
+	);
 }
 ```
 
-</Step>
+---
 
-<Step title="Send a Transaction">
+## Theming
 
-[Extensions](/typescript/v5/extensions/use) are the easiest way to prepare transactions.
+You can set the theme for the [ConnectButton](https://www.notion.so/ConnectButton-51113a400e614dfe93a598e9e1b8ef63?pvs=21) component, which is set to `"dark"` by default. theme can be set to either `"dark"` , `"light"` or a custom theme object.
 
-1. Import the Extension you want to use
-2. Define your contract with `getContract` on your target chains
-3. Call the `useSendTransaction` mutation hook
-4. Execute the transaction using the mutate function
+We have **`[lightTheme](https://portal.thirdweb.com/references/typescript/v5/lightTheme)`** or **`[darkTheme](https://portal.thirdweb.com/references/typescript/v5/darkTheme)`** providers that you can override to kickstart customization.
+
+You can refer to our `Theme` page for a full view of customizable options if you’d prefer to create a custom theme from scratch.
 
 ```tsx
-import { getContract } from "thirdweb";
-import { sepolia } from "thirdweb/chains";
-import { useSendTransaction } from "thirdweb/react";
-// 1. import the extension you want to use
-import { transfer } from "thirdweb/extensions/erc20";
+import { ConnectButton } from "thirdweb/react";
 
-// 2. define the target contract
-const USDC = getContract({ client, address: USDC_ADDRESS, chain: sepolia });
-
-export default function MyComponent() {
-  // 3. call the useSendTransaction hook
-  const { mutate: sendTransaction, isPending } = useSendTransaction();
-
-  const onClick = () => {
-    // 4. execute the transaction (send 15 USDC to the target address)
-    const transaction = transfer({ contract: USDC, amount: 15, to: "0x..." });
-    sendTransaction(transaction);
-  }
+function Example() {
+	return (
+		<div>
+			<ConnectButton theme={yourThemeConfig} />
+		</div>
+	);
 }
 ```
 
-</Step>
+---
 
-<Step title="You're Ready to build">
+## Localization
 
-Congratulations, you've connected a wallet and sent a transaction from your application! You can now explore all the other accessible features in [the full React documentation.](/react/v5)
+By default, our ConnectButton uses the `en-US` locale. You can customize the language by setting the `locale` prop. You can refer to the **`[LocaleId](https://portal.thirdweb.com/references/typescript/v5/LocaleId)`** type for supported locales.
 
-</Step>
-</Steps>
+```tsx
+import { ConnectButton } from "thirdweb/react";
+
+function Example() {
+	return (
+		<div>
+			<ConnectButton locale={"en_US"} />
+		</div>
+	);
+}
+```
+
+thirdweb currently supports the following locales:
+
+| Locale                  | Code  |
+| ----------------------- | ----- |
+| English (United States) | en_US |
+| Spanish (Spain)         | es_ES |
+| German (Germany)        | de_DE |
+| Japanese (Japan)        | ja_JP |
+| Tagalog (Philippines)   | tl_PH |
+| Vietnamese (Vietnam)    | vi_VN |
+| French                  | fr_FR |
+| Korean                  | ko_KR |
