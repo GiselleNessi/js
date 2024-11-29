@@ -3,53 +3,93 @@ import {
 	TabsList,
 	TabsTrigger,
 	TabsContent,
+	Steps,
+	Step,
 	DocImage,
+	Callout,
 	createMetadata,
 } from "@doc";
-import EWCustomAuth from "../images/customauth.png";
-import EWCustomAuthdb from "../images/customauthdb.png";
-import EWCustomAuthdb2 from "../images/customauthdb2.png";
+import EWCreateKey from "../images/ew-create-key.png";
+import EWCustomAuthConfig from "../images/ew-custom-auth-config.png";
+import EWCustomAuthFlow from "../images/ew-custom-auth-flow.png";
 
 export const metadata = createMetadata({
 	image: {
-		title: "Configure Authentication for In-App Wallet",
+		title: "Custom Auth Server for In-App Wallet",
 		icon: "wallets",
 	},
-	title: "Configure Authentication In-App Wallet | thirdweb",
+	title: "Custom Auth Server | InAppWallet",
 	description:
-		"Configure Authentication with OIDC standard, OR a generic option that lets you bring your own auth server",
+		"Learn how to integrate your auth backend with our in-app wallets solution so you can onboard your users into web3 seamlessly.",
 });
 
-# Configuration
+# Custom Auth Server
 
-We offer two options to setup in-app wallets with custom auth, one that is based on the [OIDC (Open ID Connect)](https://openid.net/developers/how-connect-works/) standard, and a generic option that lets you bring your own auth server. You can also use both options together if needed.
+Learn how to integrate your auth backend with our in-app wallets solution so you can onboard your users into web3 seamlessly.
 
-## OIDC compatible auth
+This guide will show you how to create your own Auth Server that is compatible with the `auth_endpoint` strategy. By doing so, you can have full control over user authentication and data security. This allows you to ensure that your application meets specific compliance requirements while also providing a customized sign-in experience.
 
-The OIDC auth set-up is a good option if you use an external auth provider like `Auth0`, `firebase`, `cognito` etc. that publishes the JWK for checking the authenticity of the token.
+<Callout variant="warning" title="Security">
+	This guide is simplified for demonstration purposes and is not ready for
+	production use. When modifying it for production, secure your endpoints and
+	avoid hard-coding secrets or sensitive information. We recommend using
+	environment variables and secret managers.
+</Callout>
 
-An OIDC auth system has a public-private keypair, where the private key is used to sign auth tokens.
+## 5 minute quickstart
 
-- The public key is uploaded to a public URL in JWKS format. The standard location is `https://{domain}.com/.well-known/jwks.json`
-- When a user logs in, a JWT token called the idToken is generated and signed by the private key. The OIDC spec provides an interface for fields that are used in this token.
-- This JWT is then passed to the in-app wallet to generate a wallet for the user.
-- We will verify the JWT against the public key to verify that the JWT was signed correctly. Upon successful verification, we will proceed to generate a wallet based on the `sub` (user identifier) value of the idToken.
+<Steps>
 
-To setup an OIDC compatible auth, enable the first option in the configuration tab of the in-app wallet dashboard
+<Step title="Step 1">
+	Navigate to Your Team > Project > Connect > In-App Wallets Page from the (dashboard)[https://thirdweb.com/team]
+</Step>
 
-<DocImage src={EWCustomAuthdb} />
+<Step title="Step 2">
+	Create a thirdweb API key if you don't have one or select an existing key to
+	use for this project. [Learn more about API
+	keys.](/api-keys)
 
-You will be asked to enter the following values
+<DocImage src={EWCreateKey} />
 
-- The URL of the JWKS file (public key): This is used to verify the token was signed by you.
-- The `aud` value of the idToken: This is used to verify that thirdweb is the intended user of the token
+</Step>
 
-### Authenticating a user via OIDC-compatible auth
+<Step title="Step 3">
+	Allowlist domain or bundle IDs in Access Restrictions.
+</Step>
+
+<Step title="Step 4">
+	Navigate to the Configuration view and enable **Custom Auth Endpoint**
+
+```
+<DocImage src={EWCustomAuthConfig} />
+```
+
+</Step>
+
+<Step title="Step 5">
+	Set the Auth Endpoint URL to
+	`https://embedded-wallet.thirdweb.com/api/2023-11-30/embedded-wallet/auth/test-custom-auth-endpoint`
+	for testing purposes. You will replace this later with your own auth server
+	endpoint to verify the `payload`.
+</Step>
+
+<Step title="Step 6">Save the configuration.</Step>
+
+<Step title="Step 7">Copy the client ID.</Step>
+
+<Step title="Step 8">
+	In your preferred thirdweb client SDK, pass the payload you retrieved from
+	logging in to the server.
+</Step>
+
+</Steps>
+
+You can now auth into the wallet and use it to sign transactions like so (see [use your own auth for more](/in-app-wallet/custom-auth)):
 
 <Tabs defaultValue="react">
 <TabsList>
-	<TabsTrigger value="react">React</TabsTrigger>
-	<TabsTrigger value="typescript">TypeScript</TabsTrigger>
+	<TabsTrigger value="react">React & React Native</TabsTrigger>
+	<TabsTrigger value="typescript">Other Frameworks</TabsTrigger>
 </TabsList>
 
 <TabsContent value="react">
@@ -65,94 +105,8 @@ const handlePostLogin = async (jwt: string) => {
 		const wallet = inAppWallet();
 		wallet.connect({
 			client,
-			strategy: "jwt",
-			jwt,
-		});
-		return wallet;
-	});
-};
-```
-
-</TabsContent>
-
-<TabsContent value="typescript">
-
-```typescript
-import { inAppWallet } from "thirdweb/wallets";
-
-const wallet = inAppWallet();
-
-const account = await wallet.connect({
-	client,
-	strategy: "jwt",
-	jwt,
-});
-
-// use the account to send transactions
-```
-
-</TabsContent>
-</Tabs>
-
-## Generic auth
-
-Generic auth is a lower-level option that can be used when you have your own auth server that you use to authenticate users.
-
-Generic auth is good for supporting other auth methods that we don't support today, like Discord, Twitter, Github etc., or something completely custom.
-
-High-level flow and requirement for generic auth via endpoint:
-
-- When a user logs in, you are able to generate a public identifier that allows you to identify the user.
-- You can pass this identifier to the in-app wallet to generate a wallet for the user.
-- When verifying the user, we will hit an endpoint that you provide to verify the user's identity.
-- We will then generate a wallet for the user if the provided payload is valid.
-
-<DocImage src={EWCustomAuth} />
-
-To use generic auth, enable the second option in the configuration tab of the in-app wallet dashboard
-
-<DocImage src={EWCustomAuthdb2} />
-
-You will be asked to enter an endpoint that we can hit to verify the user's identity. This endpoint should accept a POST request with a JSON body containing the following fields:
-
-- `payload`: This will correspond to the public identifier that was generated for your user. Note that this is passed in from the client side via the SDK. See below for an example of how this is used.
-
-The endpoint should return a JSON body containing the following fields:
-
-- `userId`: A uid for the user. This will be used to identify the user in the wallet if no email is present.
-- `email` (optional): If provided, the user will be able to access the same account outside of the platform for things like private key export // using with wallet connect etc.
-  - Note: If two different `userId` values are provided with the same email, both `userId` values will be able to access the same wallet.
-  - Conversely, if the same `userId` is provided with two different emails across different login sessions, the `userId` will have two wallets associated with it. Each wallet will be tied to one of the emails.
-- `exp` (optional): An expiration date for the user's wallet session. By default, a session is 7 days long.
-
-You can also pass a list of headers. These headers will be sent with every request to your verification endpoint. You can use these to authenticate the request.
-
-### Authenticating a user via generic auth
-
-Once you've logged in with your own auth, you can pass the user's JWT to the in-app wallet to authenticate and connect.
-
-<Tabs defaultValue="react">
-<TabsList>
-	<TabsTrigger value="react">React</TabsTrigger>
-	<TabsTrigger value="typescript">TypeScript</TabsTrigger>
-</TabsList>
-
-<TabsContent value="react">
-
-```typescript
-import { inAppWallet } from "thirdweb/wallets";
-import { useConnect } from "thirdweb/react";
-
-const { connect } = useConnect();
-
-const handlePostLogin = async (jwt: string) => {
-	await connect(() => {
-		const wallet = inAppWallet();
-		await wallet.connect({
-			client,
 			strategy: "auth_endpoint",
-			// This is the payload that is sent to the auth endpoint
-			payload,
+			payload: JSON.stringify({ userId: "ANY_RANDOM_ID_HERE" }),
 		});
 		return wallet;
 	});
@@ -162,8 +116,6 @@ const handlePostLogin = async (jwt: string) => {
 </TabsContent>
 
 <TabsContent value="typescript">
-
-In other frameworks, use your own instance of the wallet to authenticate and connect.
 
 ```typescript
 import { inAppWallet } from "thirdweb/wallets";
@@ -173,8 +125,7 @@ const wallet = inAppWallet();
 const account = await wallet.connect({
 	client,
 	strategy: "auth_endpoint",
-	// This is the payload that is sent to the auth endpoint
-	payload,
+	payload: JSON.stringify({ userId: "ANY_RANDOM_ID_HERE" }),
 });
 
 // use the account to send transactions
@@ -182,3 +133,125 @@ const account = await wallet.connect({
 
 </TabsContent>
 </Tabs>
+
+A persistent, cross-platform wallet is now created for your user!
+
+Of course, you would use your own auth server instead of the one we provided. The rest of this guide will show you how to create your own auth server.
+
+### Setup
+
+The following steps will show you how to create a simple auth server that can be used with the embedded wallet.
+
+At a high level, the auth server will:
+
+1. Handle login for the user into your application.
+2. Have a way to get a public identifier for the user.
+3. Have an endpoint to verify the public identifier and return some basic information about the user
+
+Steps 1 and 2 are up to you to implement. You can use any auth strategy you want.
+
+The endpoint in step 3 is what you register as your auth endpoint on the thirdweb dashboard.
+
+Here's a high-level diagram:
+
+<DocImage src={EWCustomAuthFlow} />
+
+<Steps>
+
+<Step title="Step 1">
+
+Create a new directory for your project and navigate to it in your CLI
+
+```bash
+mkdir custom-auth-server
+cd custom-auth-server
+```
+
+</Step>
+
+<Step title="Step 2">
+
+Initialize a new Node.js application
+
+```bash
+npm init -y
+```
+
+OR
+
+```bash
+yarn init -y
+```
+
+</Step>
+
+</Steps>
+
+### **Create the Server:**
+
+In the `custom-auth-server` directory, create a file at the root named `server.js` and paste the following:
+
+```jsx
+const express = require("express");
+const fs = require("fs");
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+const users = [{ id: 1, email: "user@example.com", password: "password123" }];
+
+app.use(express.json());
+
+// This is what your app calls to log in a user and get a public identifier for the user (otherwise known as the payload)
+app.post("/login", (req, res) => {
+	const { email, password } = req.body;
+	const user = users.find((u) => u.email === email && u.password === password);
+	if (!user) return res.status(401).send({ message: "Invalid credentials" });
+
+	res.send({ payload: user.id });
+});
+
+// This is a sample endpoint that you would register on the thirdweb dashboard for us to verify the payload
+app.post("/thirdweb-will-call-this", (req, res) => {
+	const { payload } = req.body;
+	if (!payload) return res.status(401).send({ message: "Invalid credentials" });
+
+	// You would write your own logic here to verify the payload here
+	const user = users.find((u) => u.id === payload);
+	if (!user) return res.status(401).send({ message: "Invalid credentials" });
+
+	// Once the user is successfully verified, you can return the following field
+	return res.send({
+		userId: user.id,
+		// The last two fields here are optional
+		email: user.email,
+		exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30,
+	});
+});
+
+app.listen(PORT, () => {
+	console.log(`Server started on port ${PORT}`);
+});
+```
+
+### **Test Locally**
+
+1. Start the server:
+
+   ```bash
+   node server.js
+   ```
+
+2. Test login:
+
+   ```bash
+   curl -X POST http://localhost:3000/login -H "Content-Type: application/json" -d '{"email": "user@example.com", "password": "password123"}'
+   ```
+
+### **Deploy**
+
+To deploy the server, you can use services such as [Zeet](https://zeet.co/) or [Docker](https://www.docker.com/).
+
+### **Integrate In-App Wallets**
+
+Refer top the [quickstart above](#5-minute-quickstart) to integrate the embedded wallet into your application.
