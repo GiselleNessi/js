@@ -1,77 +1,238 @@
-import AppScoped from "../assets/app-scoped.svg";
-import EmbedCreation from "../assets/embed-creation.svg";
-import { DocImage, Callout, createMetadata } from "@doc";
+import { createMetadata, ArticleIconCard } from "@doc";
+import {
+    ReactIcon,
+    TypeScriptIcon,
+    UnityIcon,
+    DotNetIcon,
+    ExternalLinkIcon,
+    UnrealEngineIcon
+} from "@/icons"
 
 export const metadata = createMetadata({
 	image: {
-		title: "In-App Wallet Security",
+		title: "Getting User Profiles",
 		icon: "wallets",
 	},
-	title: "In-App Wallet Security",
+	title: "Getting User Profiles | thirdweb",
 	description:
-		"Learn how thirdweb protects your user's private keys using Shamir's Secret Sharing algorithm",
+		"Learn how to retrieve the user profiles linked to a wallet.",
 });
 
-# How it works
+# Getting User Profiles
 
-## Wallet creation
+Once authenticated, you can retrieve the user profiles linked to a wallet. This allows you to access additional information about the user, such as their email address or phone number.
 
-When a user signs into an application using their email or social logins for the first time, a wallet is generated on the user's device. The corresponding wallet key for this wallet is securely split into three shards using [Shamir's Secret Sharing](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing) algorithm.
+## List of Strategies
 
-1. **Shard A** is stored securely on the user's device. For web applications, this is stored on the browser, or for mobile apps, it is in a secure enclave.
-2. **Shard B** is encrypted and stored in [Amazon KMS](https://aws.amazon.com/kms/) using a key known to thirdweb. This process uses [hardware security modules](https://en.wikipedia.org/wiki/Hardware_security_module) (HSMs) to protect the confidentiality and integrity of keys. The encrypted string is stored in thirdweb's database.
-3. **Shard C** is encrypted by user authentication and stored in Amazon's KMS using hardware security modules (HSMs) to protect the confidentiality and integrity of keys. Despite the key stored on thirdweb's servers, thirdweb has no way of decrypting and accessing the key.
+Regardless of platform, the response will have a json object in the following shape as some level: 
 
-<DocImage src={EmbedCreation} />
+```json
+{
+	"strategy": "email",
+	"details": {
+		"email": "user@example.com"
+	},
+}
+```
 
-## Recoverability
+Note that the `email` field above will differ based on the profile type. We list the expected field below in our list of strategies.
 
-In-App Wallets are non-custodial, and users can export their private key anytime. Users may recover their wallet from any device by authenticating or signing into an application to receive access to their wallet.
-Threshold secret-sharing cryptography is used to recreate the private key; two of three shards are required.
-If a user loses access to their authentication method (email, social login, or custom authentication), they cannot recover their wallet.
+| Strategy      | Type              | `details` Field |       |
+| ------------- | ----------------- | --------------- | ----- |
+| Email         | `"email"`         | `email`         |       |
+| Google        | `"google"`        | `email`         |       |
+| Discord       | `"discord"`       | `email`         | `id`  |
+| Apple         | `"apple"`         | `email`         | `id`  |
+| Facebook      | `"facebook"`      | `email`         | `id`  |
+| Phone         | `"phone"`         | `phone`         |       |
+| Guest         | `"guest"`         | `id`            |       |
+| Passkey       | `"passkey"`       | `id`            |       |
+| Telegram      | `"telegram"`      | `id`            |       |
+| Farcaster     | `"farcaster"`     | `id`            |       |
+| Line          | `"line"`          | `id`            |       |
+| JWT           | `"jwt"`           | `id`            |       |
+| Auth Endpoint | `"auth_endpoint"` | `id`            |       |
+| Wallet        | `"wallet"`        | `address`       |       |
 
-<Callout variant='info'>
+## Frontend
 
-thirdweb does not have the ability to access user accounts or reconstruct private keys.
+For frontend, we provide methods to get information around the currently logged in user. 
 
-</Callout>
+### In App Wallet
 
-## In-App Wallet Scope
+<div className="my-4 grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+    <ArticleIconCard
+        title="TypeScript"
+        icon={TypeScriptIcon}
+        description="Get logged in user profile for in-app wallets in TypeScript"
+        href="/typescript/v5/getProfiles"
+    />
+    <ArticleIconCard
+        title="React"
+        icon={ReactIcon}
+        description="Get logged in user profile for in-app wallets in React"
+        href="/react/v5/useProfiles"
+    />
+    <ArticleIconCard
+        title="React Native"
+        icon={ReactIcon}
+        description="Get logged in user profile for in-app wallets in React Native"
+        href="/react-native/v5/useProfiles"
+    />
+	<ArticleIconCard
+        title=".NET"
+        icon={DotNetIcon}
+        description="Get logged in user profile for in-app wallets in .NET"
+        href="/dotnet/wallets/providers/in-app-wallet#getting-linked-accounts"
+    />
+    <ArticleIconCard
+        title="Unity"
+        icon={UnityIcon}
+        description="Get logged in user profile for in-app wallets in Unity"
+        href="/unity/v5/wallets/in-app-wallet#account-linking"
+    />
+</div>
 
-In-App Wallets are scoped to applications per API key. If users use the same email to sign in to a different application using In-App Wallets, the application will manage an entirely different wallet.
+### Ecosystem Wallet
 
-### Benefits of single application scoped wallets
+<div className="my-4 grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+     <ArticleIconCard
+        title="TypeScript"
+        icon={TypeScriptIcon}
+        description="Get user profile for ecosystem wallets in TypeScript"
+        href="/typescript/v5/getProfiles"
+    />
+    <ArticleIconCard
+        title="React"
+        icon={ReactIcon}
+        description="Get user profile for ecosystem wallets in React"
+        href="/react/v5/useProfiles"
+    />
+    <ArticleIconCard
+        title="React Native"
+        icon={ReactIcon}
+        description="Get user profile for ecosystem wallets in React Native"
+        href="/react-native/v5/useProfiles"
+    />
+	<ArticleIconCard
+        title=".NET"
+        icon={DotNetIcon}
+        description="Get user profile for ecosystem wallets in .NET"
+        href="/dotnet/wallets/providers/ecosystem-wallet#getting-linked-accounts"
+    />
+    <ArticleIconCard
+        title="Unity"
+        icon={UnityIcon}
+        description="Get user profile for ecosystem wallets in Unity"
+        href="/unity/v5/wallets/ecosystem-wallet#account-linking"
+    />
+</div>
 
-- Each application has limited access only to wallets created through their application. It cannot manage wallets from other applications.
-- Users may only view tokens sent or purchased from your application.
-- To improve user experience, saved payment methods and KYC verification are only provided to thirdweb; applications cannot view this information.
+## Backend
 
-Users may view all their application-scoped In-App Wallets in a single view using the [My Wallets](https://ews.thirdweb.com/wallet) dashboard. Learn more about My Wallets.
+From the backend, you are able to get the details of any user within your in app or ecosystem wallet. 
 
-<DocImage src={AppScoped} />
+To get the user details, you can make a `GET` request to the following endpoint:
 
-### Scalability
+```
+https://in-app-wallet.thirdweb.com/api/2023-11-30/embedded-wallet/user-details
+```
 
-We support up to 100 wallets generated/second by default and can support higher limits (up to 3,000 wallets generated/second) upon request. [Contact Sales](https://thirdweb.com/contact-us) for more information.
+### Query Parameters
 
-### Security & privacy
+You can specify the query parameter `queryBy` to query by different user identifiers:
 
-#### TLS Encryption
+- `queryBy`: The parameter to query by. Can be one of `walletAddress`, `email`, `phone`, `externalWalletAddress`, or `id`.
 
-To increase security and privacy, private keys or wallet "seed phrases" are never stored or sent over a network. TLS encryption is used in transit for internal and external communications with thirdweb's back-end and databases. TLS encryption is also required for third-party vendors.
+You can then specify the value to query by, matching the queryBy parameter:
 
-#### AES-256
+- `walletAddress`: The user's wallet address that thirdweb has generated for them
+- `email`: The user's email address
+- `phone`: The user's phone number
+- `externalWalletAddress`: The user's wallet address that used to login via SIWE
+- `id`: The user's ID (for custom auth)
 
-Data backups and storage are encrypted with AES-256.
+### Authentication
 
-#### Threshold secret sharing
+You need to include your ThirdWeb Client Secret in the Authorization header. 
 
-Using threshold secret sharing, thirdweb cannot reconstruct a user's private key, thereby providing a non-custodial wallet. Additionally, a customer's assets are safe even if thirdweb or the application developer (you) is compromised. In a compromised situation, an attacker may only be able to access one of three shards, which is inadequate to reconstruct the wallet's private key.
+If you are an ecosystem owner, you have to include the `x-ecosystem-id` header and optionally the `x-ecosystem-partner-id` header if the ecosystem is set to partners only.
 
-#### GDPR & CCPA
+### Example curl Command
 
-thirdweb complies to GDPR and CCPA compliance frameworks and deletes customer data per request within the required timeframe of each standard (30 days for GDPR and 45 for CCPA).
+Here's an example curl command to fetch user details by email:
 
-#### Audit and Bounty Program
+```bash
+curl -X GET 'https://in-app-wallet.thirdweb.com/api/2023-11-30/embedded-wallet/user-details?queryBy=email&email=user@example.com' \
+  -H 'x-secret-key: YOUR_THIRD_WEB_CLIENT_SECRET'
+```
 
-HackerOne has audited our in-app wallet private key security architecture, and there is an ongoing bounty program to ensure vulnerabilities are caught. [View the Letter of Attestation.](/pdfs/thirdweb_code_security_audit.pdf)
+Here's an example curl command to fetch user details by address:
+
+```bash
+curl -X GET 'https://in-app-wallet.thirdweb.com/api/2023-11-30/embedded-wallet/user-details?queryBy=walletAddress&walletAddress=0x123456789abcdef' \
+  -H 'x-secret-key: YOUR_THIRD_WEB_CLIENT_SECRET'
+```
+
+Here's an example curl command to fetch the user details for an ecosystem owner:
+
+```bash
+curl -X GET 'https://in-app-wallet.thirdweb.com/api/2023-11-30/embedded-wallet/user-details?queryBy=walletAddress&walletAddress=0x123456789abcdef' \
+  -H 'x-secret-key: YOUR_THIRD_WEB_CLIENT_SECRET' \
+  -H 'x-ecosystem-id: ecosystem.YOUR_ECOSYSTEM_ID' \
+  -H 'x-ecosystem-partner-id: YOUR_PARTNER_ID'
+```
+
+In both examples, replace `YOUR_THIRD_WEB_CLIENT_SECRET` with your actual ThirdWeb Client Secret.
+
+Replace `YOUR_ECOSYSTEM_ID` and `YOUR_PARTNER_ID` with your actual ecosystem ID and partner ID respectively. The partner ID can be one you set up for yourself as the ecosystem owner.
+
+### Response Format
+
+The API returns a JSON array with the following structure for each user:
+
+```json
+[
+  {
+    "userId": "string",
+    "walletAddress": "string",
+    "email": "string (optional)",
+    "phone": "string (optional)",
+    "createdAt": "string",
+    "linkedAccounts": [
+      {
+        "type": "string",
+        "details": {
+          "phone": "string",
+          // or
+          "email": "string",
+          // or
+          "address": "string",
+          // or
+          "id": "string",
+          // Additional key-value pairs may be present
+        }
+      }
+    ]
+  }
+]
+```
+
+Note: The `details` object in `linkedAccounts` will contain different fields based on the account type. See the [list of Strategies](#list-of-strategies) above for more information.
+
+Remember to handle the response appropriately in your chosen programming language, including error cases and parsing the JSON response.
+
+### Convenience Methods
+
+If you are using the thirdweb SDK, you can use the `getUser` method to retrieve user details.
+
+<ArticleIconCard
+	title="getUser"
+	icon={TypeScriptIcon}
+	description="Get user details from your backend for thirdweb wallets in TypeScript"
+	href="/references/typescript/v5/getUser"
+/>
+
+## Linking Additional Identities
+
+If you want to link additional identities to a wallet, see [Linking Multiple Identities](/connect/wallet/user-management/link-multiple-identity).
