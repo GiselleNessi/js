@@ -1,95 +1,216 @@
-import { OpenSourceCard, Grid, SDKCard, createMetadata, FeatureCard } from "@doc";
-import { ReactIcon, TypeScriptIcon, UnityIcon } from "@/icons";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { createMetadata } from "@doc";
+import { V4SDKbanner } from "@/components/others/V4SDKBanner";
 
 export const metadata = createMetadata({
 	image: {
-		title: "thirdweb Account Abstraction",
-		icon: "wallets",
+		title: "Account Permissions & Session Keys",
+		icon: "thirdweb",
 	},
-	title: "Account Abstraction | thirdweb",
+	title: "Account Permissions & Session Keys | thirdweb",
 	description:
-		"Everything you need to leverage account abstraction technology to enable seamless user experiences",
+		"All of the account contracts - Simple and Managed - share the same permission model. In this section, we'll describe this permission model in detail",
 });
 
-# Account Abstraction
+# Account Permissions & Session Keys
 
-Everything you need to leverage account abstraction technology to enable seamless user experiences for your users. You get all the tools to integrate account abstraction into your app. This includes:
+All of the account contracts - [Simple](https://thirdweb.com/thirdweb.eth/AccountFactory) and [Managed](https://thirdweb.com/thirdweb.eth/ManagedAccountFactory) - share the same permission model. In this section, we'll describe this permission model in detail.
 
-- Account factory contracts that let you spin up smart accounts for your users
-- Bundler, which is the infrastructure needed to process account abstraction transactions (known as User Ops)
-- Paymaster, which lets you sponsor transaction fees for your users
+An account recognizes only two types of actors: _Session Keys_ and _Admins_.
 
-## Features
+## 1. Admins
 
-<div
-	className="my-4 grid gap-2 md:grid-cols-2 lg:grid-cols-2 "
->
-	<FeatureCard
-		title="Execute Transactions"
-		description="Enable exchange of native currencies and NFTs to smart account"
-		iconUrl="/icons/feature-cards/transactions.svg"
-	/>
+Admins have **unrestricted access** to the account; call any functions on the contract, use the contract without going through the ERC-4337 infrastructure (bundlers, EntryPoint, etc.), withdraw the account's native token balance, and so on.
 
-```
-<FeatureCard
-	title="Account Factory Contracts"
-	description="Deploy ERC-4337 through dashboard, CLI, and SDKs"
-		iconUrl="/icons/feature-cards/account-factory.svg"
-/>
-	<FeatureCard
-	title="Sponsor Transaction Fees"
-	description="Sponsor transaction fees for users using Paymaster services"
-	iconUrl="/icons/feature-cards/gasless.svg"
-/>
+### Assigning Admin Permissions
 
-	    <FeatureCard
-	title="Provision Access"
-	description="Provide provisioned access with restrictions using session keys"
-		iconUrl="/icons/feature-cards/session-keys.svg"
-/>
+Existing admins on the account can add new admins, remove existing admins or renounce their own admin status.
 
-	<FeatureCard
-	title="Bundler"
-	description="Equipped with transaction processing software"
-	iconUrl="/icons/feature-cards/bundler.svg"
-/>
+<Tabs defaultValue="react">
 
-<FeatureCard
-	title="Enable permissions"
-	description="Assign signer and admin roles for granular access"
-		iconUrl="/icons/feature-cards/permissions.svg"
-/>
+<TabsList>
+	<TabsTrigger value="react">React</TabsTrigger>
+	<TabsTrigger value="typescript">TypeScript</TabsTrigger>
+</TabsList>
 
-    <FeatureCard
-	title="Composable API"
-	description="Compatible with external bundler and paymaster services or non-thirdweb ERC-4337 contracts"
-		iconUrl="/icons/feature-cards/composable-api.svg"
-/>
+<TabsContent value="react">
 
-	    <FeatureCard
-	title="Upgradeable"
-	description="Managed version of factory contracts to enable future upgrades"
-		iconUrl="/icons/feature-cards/upgrade.svg"
-/>
+```tsx
+import { addAdmin } from "thirdweb/extensions/erc4337";
+import { useSendTransaction, useActiveAccount } from "thirdweb/react";
+import { getContract } from "thirdweb";
+
+const { mutate: sendTransaction } = useSendTransaction();
+const smartAccount = useActiveAccount();
+
+const onClick = () => {
+	if (!smartAccount) return;
+	const transaction = addAdmin({
+		contract: getContract({
+			address: smartAccount.address,
+			chain,
+			client,
+		}),
+		account: smartAccount,
+		adminAddress: "0x...", // the address of the new admin
+	});
+	sendTransaction(transaction);
+};
 ```
 
-</div>
+</TabsContent>
+<TabsContent value="typescript">
 
-## Demos
+```typescript
+import { addAdmin } from "thirdweb/extensions/erc4337";
+import { smartWallet } from "thirdweb/wallets";
+import { sendTransaction, getContract } from "thirdweb";
 
-Learn by example with these open-source demos:
+const wallet = new smartWallet(config);
+const smartAccount = await wallet.connect({
+	client,
+	personalAccount,
+});
 
-<OpenSourceCard
-	title="Account Abstraction Demos"
-	description="A reference implementation to create and interact with smart accounts."
-	href={"https://github.com/thirdweb-example/account-abstraction"}
-/>
+const transaction = addAdmin({
+	contract: getContract({
+		address: smartAccount.address,
+		chain,
+		client,
+	}),
+	account: smartAccount,
+	adminAddress: "0x...", // the address of the new admin
+});
+await sendTransaction({
+	transaction,
+	account: smartAccount,
+});
+```
 
-## References
+</TabsContent>
+</Tabs>
 
-By using the thirdweb SDKs, you can easily create and manage smart accounts for your users:
+## 2. Session Keys
 
-<Grid>
-	<SDKCard href="/typescript/v5" title="TypeScript" icon={TypeScriptIcon} />
-	<SDKCard href="/unity" title="Unity" icon={UnityIcon} />
-</Grid>
+Session Keys are additional authorized signers that must go through ERC-4337 infrastructure (bundlers, EntryPoint, etc.) to use an account to execute transactions. Session keys can use an account under certain restrictions.
+
+### Assigning Session Key Permissions
+
+Each individual session key has its own permissions to use the account. Only admins can set the permissions for session keys.
+
+Session keys can be assigned the following permissions:
+
+- [Required] Allow interaction with specific contracts with the account ("\*" for any contracts)
+- [Optional] Have a maximum amount of native tokens that can be transferred per transaction (defaults to 0 eth, transactions with value will be rejected)
+- [Optional] Have access to the account only during a specific time window (defaults to 10 years from now)
+
+These restrictions are set in the `SignerPermissionsRequest` struct.
+To set the permissions for a given signer, the `setPermissionsForSigner` function is called.
+
+<Tabs defaultValue="react">
+
+<TabsList>
+	<TabsTrigger value="react">React</TabsTrigger>
+	<TabsTrigger value="typescript">TypeScript</TabsTrigger>
+	<TabsTrigger value="unity">Unity</TabsTrigger>
+</TabsList>
+
+<TabsContent value="react">
+
+```tsx
+import { addSessionKey } from "thirdweb/extensions/erc4337";
+import { useSendTransaction, useActiveAccount } from "thirdweb/react";
+import { getContract } from "thirdweb";
+
+const { mutate: sendTransaction } = useSendTransaction();
+const smartAccount = useActiveAccount();
+
+const onClick = () => {
+	if (!smartAccount) return;
+	const transaction = addSessionKey({
+		contract: getContract({
+			address: smartAccount.address,
+			chain,
+			client,
+		}),
+		account: smartAccount,
+		sessionKeyAddress: "0x...", // the address of the account allowed to use the session key
+		permissions: {
+			approvedTargets: "*", // the addresses of allowed contracts, or '*' for any contract
+			nativeTokenLimitPerTransaction: 0.1, // the maximum amount of native token (in ETH) that the session key can spend per transaction
+			permissionStartTimestamp: new Date(), // the date when the session key becomes active
+			permissionEndTimestamp: new Date(Date.now() + 24 * 60 * 60 * 1000), // the date when the session key expires
+		},
+	});
+	sendTransaction(transaction);
+};
+```
+
+</TabsContent>
+
+<TabsContent value="typescript">
+
+```ts
+import { addSessionKey } from "thirdweb/extensions/erc4337";
+import { wallet } from "thirdweb/wallets";
+import { sendTransaction, getContract } from "thirdweb";
+
+const wallet = new smartWallet(config);
+const smartAccount = await smartWallet.connect({
+	client,
+	personalAccount,
+});
+
+const transaction = addSessionKey({
+	contract: getContract({
+		address: smartAccount.address,
+		chain,
+		client,
+	}),
+	account: smartAccount,
+	sessionKeyAddress: "0x...", // the address of the new session key
+	permissions: {
+		approvedTargets: "*", // the addresses of allowed contracts, or '*' for any contract
+		nativeTokenLimitPerTransaction: 0.1, // the maximum amount of native token (in ETH) that the session key can spend per transaction
+		permissionStartTimestamp: new Date(), // the date when the session key becomes active
+		permissionEndTimestamp: new Date(Date.now() + 24 * 60 * 60 * 1000), // the date when the session key expires
+	},
+});
+await sendTransaction({
+	transaction,
+	account: smartAccount,
+});
+```
+
+</TabsContent>
+<TabsContent value="unity">
+
+```csharp
+using Thirdweb;
+
+// Reference to your Thirdweb SDK
+var sdk = ThirdwebManager.Instance.SDK;
+
+// Create a session key
+string signerAddress = "0xSignerAddress";
+List<string> approvedTargets = new List<string> { "0xTargetAddress" };
+string nativeTokenLimitPerTransactionInWei = "0";
+string permissionStartTimestamp = "0";
+string permissionEndTimestamp = Utils.GetUnixTimestampIn10Years().ToString();
+string reqValidityStartTimestamp = "0";
+string reqValidityEndTimestamp = Utils.GetUnixTimestampIn10Years().ToString();
+
+await sdk.wallet.CreateSessionKey(
+  "0xSignerAddress",
+  approvedTargets,
+  nativeTokenLimitPerTransactionInWei,
+  permissionStartTimestamp,
+  permissionEndTimestamp,
+  reqValidityStartTimestamp,
+  reqValidityEndTimestamp
+);
+
+```
+
+</TabsContent>
+</Tabs>
