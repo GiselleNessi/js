@@ -1,99 +1,77 @@
-import { Callout, DocImage, createMetadata, Steps, Step } from "@doc";
-import CreateEcosystemWallet from "./assets/ecosystem-info.png";
-import EcosystemWalletPermissions from "./assets/ecosystem-wallet-permissions.png";
-import AddAPartner from "./assets/add-partner.png";
+import AppScoped from "../assets/app-scoped.svg";
+import EmbedCreation from "../assets/embed-creation.svg";
+import { DocImage, Callout, createMetadata } from "@doc";
 
 export const metadata = createMetadata({
 	image: {
-		title: "thirdweb Ecosystem Wallet",
+		title: "In-App Wallet Security",
 		icon: "wallets",
 	},
-	title: "Get Started - Ecosystem Wallet | thirdweb",
-	description: "Ecosystem Wallet - Own your own web3 identity stack",
+	title: "In-App Wallet Security",
+	description:
+		"Learn how thirdweb protects your user's private keys using Shamir's Secret Sharing algorithm",
 });
 
-# Get Started
+# How it works
 
-Learn how to spin up your first ecosystem wallet, brand your wallet, and integrate your first ecosystem partner.
+## Wallet creation
 
-<Steps>
-<Step title='Get your Client ID'>
-On the thirdweb dashboard, navigate to settings to create an API Key to obtain a Client ID.
-</Step>
-<Step title='Deploy Your Instance'>
+When a user signs into an application using their email or social logins for the first time, a wallet is generated on the user's device. The corresponding wallet key for this wallet is securely split into three shards using [Shamir's Secret Sharing](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing) algorithm.
 
-Visit the [Ecosystem Wallets dashboard](https://thirdweb.com/team/~/~/ecosystem/create) and enter the name of your ecosystem and choose your logo.
+1. **Shard A** is stored securely on the user's device. For web applications, this is stored on the browser, or for mobile apps, it is in a secure enclave.
+2. **Shard B** is encrypted and stored in [Amazon KMS](https://aws.amazon.com/kms/) using a key known to thirdweb. This process uses [hardware security modules](https://en.wikipedia.org/wiki/Hardware_security_module) (HSMs) to protect the confidentiality and integrity of keys. The encrypted string is stored in thirdweb's database.
+3. **Shard C** is encrypted by user authentication and stored in Amazon's KMS using hardware security modules (HSMs) to protect the confidentiality and integrity of keys. Despite the key stored on thirdweb's servers, thirdweb has no way of decrypting and accessing the key.
 
-<Callout variant="info">
-	Your ecosystem name is immutable and will appear wherever your wallet is
-	available, so choose carefully.
+<DocImage src={EmbedCreation} />
+
+## Recoverability
+
+In-App Wallets are non-custodial, and users can export their private key anytime. Users may recover their wallet from any device by authenticating or signing into an application to receive access to their wallet.
+Threshold secret-sharing cryptography is used to recreate the private key; two of three shards are required.
+If a user loses access to their authentication method (email, social login, or custom authentication), they cannot recover their wallet.
+
+<Callout variant='info'>
+
+thirdweb does not have the ability to access user accounts or reconstruct private keys.
+
 </Callout>
 
-When your ecosystem wallet is deployed, you'll receive an **Ecosystem ID** derived from your ecosystem name. You will use this ID to specify your wallet during integration (see Step 4 below).
+## In-App Wallet Scope
 
-<DocImage src={CreateEcosystemWallet} />
-</Step>
+In-App Wallets are scoped to applications per API key. If users use the same email to sign in to a different application using In-App Wallets, the application will manage an entirely different wallet.
 
-<Step title='Set Ecosystem Permissions'>
+### Benefits of single application scoped wallets
 
-There are two permission options depending on whether you’d like an open or exclusive ecosystem wallet.
+- Each application has limited access only to wallets created through their application. It cannot manage wallets from other applications.
+- Users may only view tokens sent or purchased from your application.
+- To improve user experience, saved payment methods and KYC verification are only provided to thirdweb; applications cannot view this information.
 
-<DocImage src={EcosystemWalletPermissions} />
+Users may view all their application-scoped In-App Wallets in a single view using the [My Wallets](https://ews.thirdweb.com/wallet) dashboard. Learn more about My Wallets.
 
-#### Option 1: Anyone Permissions
+<DocImage src={AppScoped} />
 
-If you want to allow anyone to integrate your ecosystem wallet, no other changes are required. You can protect your ecosystem against malicious actors by adding unwanted domains to your blocklist.
+### Scalability
 
-#### Option 2: Allowlist Permissions
+We support up to 100 wallets generated/second by default and can support higher limits (up to 3,000 wallets generated/second) upon request. [Contact Sales](https://thirdweb.com/contact-us) for more information.
 
-If you’re looking to create an ecosystem wallet for select partners, you can head to the Ecosystem Wallet dashboard, navigate to Permissions, and select “Allowlist”. All apps and games, added to your ecosystem, including your own app, will receive a unique Partner ID.
+### Security & privacy
 
-**Add Applications to Your Allowlist**
+#### TLS Encryption
 
-For each application on your allowlist, you'll need to specify a name, a list of allowed domains, wallet signing settings, and an optional bundle ID (for mobile applications). The list of domains will determine where a partner will be able to display your ecosystem as a login option. Once a partner is added, a **Partner ID** will be generated.
+To increase security and privacy, private keys or wallet "seed phrases" are never stored or sent over a network. TLS encryption is used in transit for internal and external communications with thirdweb's back-end and databases. TLS encryption is also required for third-party vendors.
 
-<Callout title="Adding Your Own App as a Partner" variant="info">
-	You'll need to add your own domains and bundle IDs to your allowlist in order
-	to login through your ecosystem wallet in your app.
-</Callout>
+#### AES-256
 
-<DocImage src={AddAPartner} />
-</Step>
+Data backups and storage are encrypted with AES-256.
 
-<Step title='Integrating Your Ecosystem Wallet'>
+#### Threshold secret sharing
 
-Once you've set up your ecosystem wallet, you can specify it using your **Ecosystem ID**.
+Using threshold secret sharing, thirdweb cannot reconstruct a user's private key, thereby providing a non-custodial wallet. Additionally, a customer's assets are safe even if thirdweb or the application developer (you) is compromised. In a compromised situation, an attacker may only be able to access one of three shards, which is inadequate to reconstruct the wallet's private key.
 
-```ts
-import { ecosystemWallet } from "thirdweb/wallets";
+#### GDPR & CCPA
 
-// Create a wallet for a non-gated "Anyone" ecosystem
-const wallet = ecosystemWallet("ecosystem.your-ecosystem-id");
-```
+thirdweb complies to GDPR and CCPA compliance frameworks and deletes customer data per request within the required timeframe of each standard (30 days for GDPR and 45 for CCPA).
 
-If you set your ecosystem wallet to Allowlist, you'll also need to specify your **Partner ID**.
+#### Audit and Bounty Program
 
-```ts
-import { ecosystemWallet } from "thirdweb/wallets";
-
-// Create a wallet for "Allowlist" ecosystems restricted to partners
-const wallet = ecosystemWallet("ecosystem.your-ecosystem-id", {
-	partnerId: "...",
-});
-```
-
-Once you've instantiated your ecosystem wallet, you can add it to your Sign In flow.
-
-```tsx
-<ConnectButton
-	client={THIRDWEB_CLIENT}
-	wallets={[wallet]} // Pass a non-gated or restricted wallet to the ConnectButton
-	{...props}
-/>
-```
-
-You and your partners can integrate your ecosystem wallet either as a full login system or as a single login option. You can read more in our [integrating partners guide](/connect/ecosystems/integrating-partners).
-
-</Step>
-
-</Steps>
+HackerOne has audited our in-app wallet private key security architecture, and there is an ongoing bounty program to ensure vulnerabilities are caught. [View the Letter of Attestation.](/pdfs/thirdweb_code_security_audit.pdf)
