@@ -1,0 +1,3 @@
+files:
+  - source: /apps/portal/src/**/*.mdx
+    translation: /apps/portal/src/app/translations/%locale%/%original_path%/%original_file_name%
